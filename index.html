@@ -66,4 +66,833 @@
             <i class="fa-solid fa-list-check"></i>
             <span>Liste Fiches (<span id="total-count">0</span>)</span>
           </button>
-          <button onclick="switchTab
+          <button onclick="switchTab('kanban')" id="tab-kanban" class="tab-btn px-4 py-2 text-xs font-medium rounded-md text-slate-600 hover:text-slate-900 hover:bg-slate-100 flex items-center space-x-2 transition">
+            <i class="fa-solid fa-columns"></i>
+            <span>Vue Kanban</span>
+          </button>
+        </div>
+
+        <div class="text-xs text-slate-500 font-medium">
+          Dernière mise à jour : <span id="last-update" class="text-slate-700 font-semibold">Aujourd'hui</span>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 overflow-y-auto custom-scrollbar p-4 sm:p-6 bg-slate-100/70">
+      <div class="max-w-7xl mx-auto">
+
+        <!-- TAB 1: DASHBOARD -->
+        <div id="view-dashboard" class="space-y-6">
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="bg-white p-4 rounded-xl border border-slate-200/80 shadow-sm flex items-center justify-between">
+              <div>
+                <p class="text-xs font-semibold uppercase tracking-wider text-slate-500">Total Fiches</p>
+                <p id="kpi-total" class="text-2xl font-bold text-slate-900 mt-1">0</p>
+              </div>
+              <div class="p-3 bg-indigo-50 text-indigo-600 rounded-xl">
+                <i class="fa-solid fa-file-lines text-xl"></i>
+              </div>
+            </div>
+
+            <div class="bg-white p-4 rounded-xl border border-slate-200/80 shadow-sm flex items-center justify-between">
+              <div>
+                <p class="text-xs font-semibold uppercase tracking-wider text-amber-600">En cours réécriture</p>
+                <p id="kpi-encours" class="text-2xl font-bold text-amber-700 mt-1">0</p>
+              </div>
+              <div class="p-3 bg-amber-50 text-amber-600 rounded-xl">
+                <i class="fa-solid fa-pen-ruler text-xl"></i>
+              </div>
+            </div>
+
+            <div class="bg-white p-4 rounded-xl border border-slate-200/80 shadow-sm flex items-center justify-between">
+              <div>
+                <p class="text-xs font-semibold uppercase tracking-wider text-blue-600">Envoyés Service</p>
+                <p id="kpi-envoye" class="text-2xl font-bold text-blue-700 mt-1">0</p>
+              </div>
+              <div class="p-3 bg-blue-50 text-blue-600 rounded-xl">
+                <i class="fa-solid fa-paper-plane text-xl"></i>
+              </div>
+            </div>
+
+            <div class="bg-white p-4 rounded-xl border border-slate-200/80 shadow-sm flex items-center justify-between">
+              <div>
+                <p class="text-xs font-semibold uppercase tracking-wider text-emerald-600">Terminés / Validés</p>
+                <p id="kpi-termine" class="text-2xl font-bold text-emerald-700 mt-1">0</p>
+              </div>
+              <div class="p-3 bg-emerald-50 text-emerald-600 rounded-xl">
+                <i class="fa-solid fa-circle-check text-xl"></i>
+              </div>
+            </div>
+          </div>
+
+          <!-- Alert Relances Card -->
+          <div id="card-alert-relance" class="bg-gradient-to-r from-amber-500 to-orange-600 text-white p-4 rounded-xl shadow-md flex items-center justify-between cursor-pointer hover:opacity-95 transition" onclick="filterRelances()">
+            <div class="flex items-center space-x-3">
+              <div class="p-2.5 bg-white/20 rounded-lg backdrop-blur-sm">
+                <i class="fa-solid fa-bell text-2xl animate-bounce"></i>
+              </div>
+              <div>
+                <h3 class="font-bold text-sm">Alerte Suivi & Relances (<span id="alert-kpi-count">0</span> fiches)</h3>
+                <p class="text-xs text-amber-100">Des fiches ont dépassé leur date limite ou arrivent à échéance (J-2). Cliquez pour voir la liste.</p>
+              </div>
+            </div>
+            <span class="bg-white text-slate-900 text-xs font-bold px-3 py-1.5 rounded-lg shadow">Voir les relances</span>
+          </div>
+
+          <!-- Charts Grid -->
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+              <h3 class="text-sm font-bold text-slate-800 mb-4 flex items-center justify-between">
+                <span>Répartition par Statut</span>
+                <i class="fa-solid fa-chart-pie text-slate-400"></i>
+              </h3>
+              <div class="relative h-64 flex items-center justify-center">
+                <canvas id="chartStatut"></canvas>
+              </div>
+            </div>
+
+            <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+              <h3 class="text-sm font-bold text-slate-800 mb-4 flex items-center justify-between">
+                <span>Charge par Rédacteur / Attribué à</span>
+                <i class="fa-solid fa-chart-column text-slate-400"></i>
+              </h3>
+              <div class="relative h-64">
+                <canvas id="chartRedacteur"></canvas>
+              </div>
+            </div>
+
+            <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm lg:col-span-2">
+              <h3 class="text-sm font-bold text-slate-800 mb-4 flex items-center justify-between">
+                <span>Répartition par Thématique</span>
+                <i class="fa-solid fa-layer-group text-slate-400"></i>
+              </h3>
+              <div class="relative h-64">
+                <canvas id="chartThematique"></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB 2: TABLE LIST -->
+        <div id="view-table" class="hidden space-y-4">
+          <!-- Filters bar -->
+          <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-wrap gap-3 items-center justify-between">
+            <div class="flex flex-wrap items-center gap-3 flex-1">
+              <div class="relative min-w-[200px] flex-1 sm:flex-none">
+                <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-400 text-xs"></i>
+                <input type="text" id="filter-search" oninput="applyFilters()" placeholder="Rechercher une fiche, un contact..." class="w-full pl-8 pr-3 py-1.5 text-xs rounded-lg border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+              </div>
+
+              <select id="filter-statut" onchange="applyFilters()" class="text-xs py-1.5 px-3 rounded-lg border border-slate-300 focus:ring-2 focus:ring-indigo-500">
+                <option value="">Tous les statuts</option>
+                <option value="En cours réécriture">En cours réécriture</option>
+                <option value="Envoyé service">Envoyé service</option>
+                <option value="Terminé">Terminé</option>
+              </select>
+
+              <select id="filter-thematique" onchange="applyFilters()" class="text-xs py-1.5 px-3 rounded-lg border border-slate-300 focus:ring-2 focus:ring-indigo-500">
+                <option value="">Toutes les thématiques</option>
+              </select>
+
+              <select id="filter-redacteur" onchange="applyFilters()" class="text-xs py-1.5 px-3 rounded-lg border border-slate-300 focus:ring-2 focus:ring-indigo-500">
+                <option value="">Tous les rédacteurs</option>
+              </select>
+
+              <select id="filter-relance" onchange="applyFilters()" class="text-xs py-1.5 px-3 rounded-lg border border-slate-300 focus:ring-2 focus:ring-indigo-500 font-medium text-amber-700 bg-amber-50">
+                <option value="">Toutes échéances</option>
+                <option value="relance">🚨 À relancer (J-2 ou Retard)</option>
+                <option value="urgent">🔴 En retard uniquement</option>
+              </select>
+            </div>
+
+            <button onclick="resetFilters()" class="text-xs text-slate-500 hover:text-indigo-600 font-medium transition">
+              Réinitialiser
+            </button>
+          </div>
+
+          <!-- Data Table -->
+          <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+            <div class="overflow-x-auto custom-scrollbar">
+              <table class="w-full text-left border-collapse text-xs">
+                <thead>
+                  <tr class="bg-slate-50 border-b border-slate-200 text-slate-600 uppercase font-semibold text-[11px] tracking-wider">
+                    <th class="p-3 w-12 text-center">Prio</th>
+                    <th class="p-3">Titre de la fiche</th>
+                    <th class="p-3">Thématique</th>
+                    <th class="p-3">Statut</th>
+                    <th class="p-3">Attribué à</th>
+                    <th class="p-3">Service / Contact</th>
+                    <th class="p-3">Date Envoi</th>
+                    <th class="p-3">Date Butoire</th>
+                    <th class="p-3 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="table-body" class="divide-y divide-slate-100 font-medium">
+                  <!-- Dynamic rows -->
+                </tbody>
+              </table>
+            </div>
+            <div class="p-3 border-t border-slate-200 bg-slate-50 flex items-center justify-between text-xs text-slate-500">
+              <span id="showing-count">Affichage de 0 sur 0 fiches</span>
+              <div id="pagination" class="flex space-x-1"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB 3: KANBAN -->
+        <div id="view-kanban" class="hidden">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
+            <!-- Column 1 -->
+            <div class="bg-slate-200/70 p-4 rounded-xl border border-slate-300 flex flex-col max-h-[calc(100vh-180px)]">
+              <div class="flex items-center justify-between mb-3">
+                <h3 class="font-bold text-xs uppercase tracking-wider text-amber-800 flex items-center space-x-2">
+                  <span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
+                  <span>En cours réécriture</span>
+                </h3>
+                <span id="kanban-count-encours" class="bg-amber-100 text-amber-800 text-xs px-2 py-0.5 rounded-full font-bold">0</span>
+              </div>
+              <div id="kanban-encours" class="space-y-3 overflow-y-auto custom-scrollbar pr-1 flex-1 min-h-[150px]"></div>
+            </div>
+
+            <!-- Column 2 -->
+            <div class="bg-slate-200/70 p-4 rounded-xl border border-slate-300 flex flex-col max-h-[calc(100vh-180px)]">
+              <div class="flex items-center justify-between mb-3">
+                <h3 class="font-bold text-xs uppercase tracking-wider text-blue-800 flex items-center space-x-2">
+                  <span class="w-2.5 h-2.5 rounded-full bg-blue-500"></span>
+                  <span>Envoyé Service</span>
+                </h3>
+                <span id="kanban-count-envoye" class="bg-blue-100 text-blue-800 text-xs px-2 py-0.5 rounded-full font-bold">0</span>
+              </div>
+              <div id="kanban-envoye" class="space-y-3 overflow-y-auto custom-scrollbar pr-1 flex-1 min-h-[150px]"></div>
+            </div>
+
+            <!-- Column 3 -->
+            <div class="bg-slate-200/70 p-4 rounded-xl border border-slate-300 flex flex-col max-h-[calc(100vh-180px)]">
+              <div class="flex items-center justify-between mb-3">
+                <h3 class="font-bold text-xs uppercase tracking-wider text-emerald-800 flex items-center space-x-2">
+                  <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+                  <span>Terminé / Validé</span>
+                </h3>
+                <span id="kanban-count-termine" class="bg-emerald-100 text-emerald-800 text-xs px-2 py-0.5 rounded-full font-bold">0</span>
+              </div>
+              <div id="kanban-termine" class="space-y-3 overflow-y-auto custom-scrollbar pr-1 flex-1 min-h-[150px]"></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- EDIT / ADD MODAL -->
+  <div id="modal-fiche" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-2xl border border-slate-200 max-w-2xl w-full overflow-hidden flex flex-col max-h-[90vh]">
+      <div class="p-4 bg-slate-900 text-white flex items-center justify-between">
+        <h3 id="modal-title" class="font-bold text-base">Éditer la fiche</h3>
+        <button onclick="closeModal()" class="text-slate-400 hover:text-white transition"><i class="fa-solid fa-xmark text-lg"></i></button>
+      </div>
+
+      <form id="form-fiche" onsubmit="saveFiche(event)" class="p-6 overflow-y-auto space-y-4 custom-scrollbar text-xs">
+        <input type="hidden" id="field-id">
+
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">Titre de la fiche *</label>
+          <input type="text" id="field-titre" required class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 text-xs">
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Thématique *</label>
+            <input type="text" id="field-thematique" required class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 text-xs">
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Priorité</label>
+            <select id="field-priorite" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 text-xs">
+              <option value="1">1 (Haute)</option>
+              <option value="2">2 (Moyenne)</option>
+              <option value="3">3 (Basse)</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Statut *</label>
+            <select id="field-statut" required class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 text-xs font-semibold">
+              <option value="En cours réécriture">En cours réécriture</option>
+              <option value="Envoyé service">Envoyé service</option>
+              <option value="Terminé">Terminé</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Attribué à (Rédacteur)</label>
+            <input type="text" id="field-attribue" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 text-xs">
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Relecture 1</label>
+            <input type="text" id="field-relecture1" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 text-xs">
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Relecture 2</label>
+            <input type="text" id="field-relecture2" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 text-xs">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-amber-50/50 p-3 rounded-xl border border-amber-200">
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Date d'envoi service</label>
+            <input type="date" id="field-date-envoi" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 text-xs bg-white">
+          </div>
+          <div>
+            <label class="block font-semibold text-amber-900 mb-1">🚨 Date Butoire (Relance J-2)</label>
+            <input type="date" id="field-date-butoire" class="w-full px-3 py-2 border border-amber-300 rounded-lg focus:ring-2 focus:ring-amber-500 text-xs font-bold bg-white">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">DGA</label>
+            <input type="text" id="field-dga" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 text-xs">
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Service Référent</label>
+            <input type="text" id="field-service" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 text-xs">
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Contact Référent</label>
+            <input type="text" id="field-contact" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 text-xs">
+          </div>
+        </div>
+
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">Commentaires / Remarques</label>
+          <textarea id="field-commentaires" rows="2" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 text-xs"></textarea>
+        </div>
+
+        <div class="pt-4 border-t flex justify-between items-center">
+          <button type="button" id="btn-delete" onclick="deleteFiche()" class="px-3 py-1.5 bg-red-50 text-red-600 hover:bg-red-100 rounded-lg font-semibold transition">
+            Supprimer
+          </button>
+          <div class="flex space-x-2">
+            <button type="button" onclick="closeModal()" class="px-4 py-2 border rounded-lg text-slate-600 font-semibold hover:bg-slate-50 transition">Annuler</button>
+            <button type="submit" class="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg shadow transition">Enregistrer</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- RELANCE MAIL MODAL -->
+  <div id="modal-relance" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-2xl border border-slate-200 max-w-xl w-full overflow-hidden">
+      <div class="p-4 bg-amber-600 text-white flex items-center justify-between">
+        <h3 class="font-bold text-base flex items-center space-x-2">
+          <i class="fa-solid fa-paper-plane"></i>
+          <span>Générateur de Relance Service</span>
+        </h3>
+        <button onclick="closeRelanceModal()" class="text-amber-200 hover:text-white transition"><i class="fa-solid fa-xmark text-lg"></i></button>
+      </div>
+
+      <div class="p-6 space-y-4 text-xs">
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">Destinataire (Contact / Service)</label>
+          <input type="text" id="relance-to" readonly class="w-full px-3 py-2 bg-slate-100 border rounded-lg font-medium">
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">Objet du courriel</label>
+          <input type="text" id="relance-subject" class="w-full px-3 py-2 border rounded-lg font-semibold text-indigo-700">
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">Corps du message de relance</label>
+          <textarea id="relance-body" rows="6" class="w-full px-3 py-2 border rounded-lg font-mono text-xs text-slate-800 leading-relaxed"></textarea>
+        </div>
+
+        <div class="pt-2 flex justify-end space-x-2">
+          <button onclick="copyRelanceText()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-lg transition flex items-center space-x-1.5">
+            <i class="fa-solid fa-copy"></i>
+            <span>Copier le texte</span>
+          </button>
+          <a id="relance-mailto-link" href="#" target="_blank" class="px-5 py-2 bg-amber-600 hover:bg-amber-700 text-white font-semibold rounded-lg shadow transition flex items-center space-x-1.5">
+            <i class="fa-solid fa-envelope"></i>
+            <span>Ouvrir dans votre messagerie</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCRIPT APP LOGIC -->
+  <script>
+    let fiches = [];
+    let filteredFiches = [];
+    let currentPage = 1;
+    const pageSize = 15;
+    let chartStatut = null, chartRedacteur = null, chartThematique = null;
+
+    // Load initial data
+    window.addEventListener('DOMContentLoaded', async () => {
+      const savedData = localStorage.getItem('calvados_fiches_data');
+      if (savedData) {
+        try {
+          fiches = JSON.parse(savedData);
+        } catch(e) {
+          fiches = [];
+        }
+      }
+      
+      if (!fiches || fiches.length === 0) {
+        try {
+          const res = await fetch('fiches_data.json');
+          fiches = await res.json();
+          saveToLocalStorage();
+        } catch(e) {
+          console.error("Could not load fiches_data.json", e);
+        }
+      }
+
+      initDropdowns();
+      applyFilters();
+      updateDashboard();
+    });
+
+    function saveToLocalStorage() {
+      localStorage.setItem('calvados_fiches_data', JSON.stringify(fiches));
+      document.getElementById('last-update').innerText = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+    }
+
+    // Date / Relance helpers
+    function getRelanceStatus(fiche) {
+      if (!fiche.date_butoire || fiche.statut === 'Terminé') return { status: 'none', label: '', class: '' };
+      
+      const now = new Date();
+      now.setHours(0,0,0,0);
+      const target = new Date(fiche.date_butoire);
+      target.setHours(0,0,0,0);
+
+      const diffDays = Math.ceil((target - now) / (1000 * 60 * 60 * 24));
+
+      if (diffDays < 0) {
+        return { status: 'overdue', label: `🚨 Retard (${Math.abs(diffDays)}j)`, class: 'bg-red-100 text-red-800 border-red-300 animate-pulse' };
+      } else if (diffDays <= 2) {
+        return { status: 'warning', label: `⚠️ Relance (J-${diffDays})`, class: 'bg-amber-100 text-amber-800 border-amber-300' };
+      } else {
+        return { status: 'ok', label: `In (${diffDays}j)`, class: 'bg-slate-100 text-slate-600 border-slate-200' };
+      }
+    }
+
+    function initDropdowns() {
+      const thematiques = [...new Set(fiches.map(f => f.thematique).filter(Boolean))].sort();
+      const redacteurs = [...new Set(fiches.map(f => f.attribue_a).filter(Boolean))].sort();
+
+      const selTheme = document.getElementById('filter-thematique');
+      selTheme.innerHTML = '<option value="">Toutes les thématiques</option>';
+      thematiques.forEach(t => selTheme.innerHTML += `<option value="${t}">${t}</option>`);
+
+      const selRedac = document.getElementById('filter-redacteur');
+      selRedac.innerHTML = '<option value="">Tous les rédacteurs</option>';
+      redacteurs.forEach(r => selRedac.innerHTML += `<option value="${r}">${r}</option>`);
+    }
+
+    function switchTab(tab) {
+      document.getElementById('view-dashboard').classList.add('hidden');
+      document.getElementById('view-table').classList.add('hidden');
+      document.getElementById('view-kanban').classList.add('hidden');
+
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('text-indigo-600', 'bg-indigo-50', 'font-semibold');
+        btn.classList.add('text-slate-600', 'hover:bg-slate-100');
+      });
+
+      const activeBtn = document.getElementById(`tab-${tab}`);
+      activeBtn.classList.add('text-indigo-600', 'bg-indigo-50', 'font-semibold');
+      activeBtn.classList.remove('text-slate-600', 'hover:bg-slate-100');
+
+      document.getElementById(`view-${tab}`).classList.remove('hidden');
+
+      if (tab === 'dashboard') updateDashboard();
+      if (tab === 'kanban') renderKanban();
+    }
+
+    function applyFilters() {
+      const search = document.getElementById('filter-search').value.toLowerCase();
+      const statut = document.getElementById('filter-statut').value;
+      const thematique = document.getElementById('filter-thematique').value;
+      const redacteur = document.getElementById('filter-redacteur').value;
+      const relanceFilter = document.getElementById('filter-relance').value;
+
+      filteredFiches = fiches.filter(f => {
+        const matchesSearch = !search || f.titre.toLowerCase().includes(search) || f.service.toLowerCase().includes(search) || f.contact.toLowerCase().includes(search);
+        const matchesStatut = !statut || f.statut === statut;
+        const matchesTheme = !thematique || f.thematique === thematique;
+        const matchesRedac = !redacteur || f.attribue_a === redacteur;
+        
+        const relState = getRelanceStatus(f);
+        let matchesRelance = true;
+        if (relanceFilter === 'relance') matchesRelance = (relState.status === 'overdue' || relState.status === 'warning');
+        if (relanceFilter === 'urgent') matchesRelance = (relState.status === 'overdue');
+
+        return matchesSearch && matchesStatut && matchesTheme && matchesRedac && matchesRelance;
+      });
+
+      currentPage = 1;
+      renderTable();
+      updateRelanceCounts();
+    }
+
+    function updateRelanceCounts() {
+      const relanceList = fiches.filter(f => {
+        const st = getRelanceStatus(f);
+        return st.status === 'overdue' || st.status === 'warning';
+      });
+      
+      document.getElementById('badge-relances-count').innerText = relanceList.length;
+      document.getElementById('alert-kpi-count').innerText = relanceList.length;
+
+      const alertCard = document.getElementById('card-alert-relance');
+      if (relanceList.length === 0) {
+        alertCard.classList.add('hidden');
+      } else {
+        alertCard.classList.remove('hidden');
+      }
+    }
+
+    function filterRelances() {
+      switchTab('table');
+      document.getElementById('filter-relance').value = 'relance';
+      applyFilters();
+    }
+
+    function resetFilters() {
+      document.getElementById('filter-search').value = '';
+      document.getElementById('filter-statut').value = '';
+      document.getElementById('filter-thematique').value = '';
+      document.getElementById('filter-redacteur').value = '';
+      document.getElementById('filter-relance').value = '';
+      applyFilters();
+    }
+
+    function renderTable() {
+      const tbody = document.getElementById('table-body');
+      tbody.innerHTML = '';
+
+      document.getElementById('total-count').innerText = fiches.length;
+      document.getElementById('showing-count').innerText = `Affichage de ${filteredFiches.length} sur ${fiches.length} fiches`;
+
+      const start = (currentPage - 1) * pageSize;
+      const pageItems = filteredFiches.slice(start, start + pageSize);
+
+      pageItems.forEach(item => {
+        const rel = getRelanceStatus(item);
+        
+        let statusBadge = '';
+        if (item.statut === 'En cours réécriture') statusBadge = '<span class="bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full font-semibold">En cours</span>';
+        else if (item.statut === 'Envoyé service') statusBadge = '<span class="bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full font-semibold">Envoyé service</span>';
+        else if (item.statut === 'Terminé') statusBadge = '<span class="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full font-semibold">Terminé</span>';
+        else statusBadge = `<span class="bg-slate-100 text-slate-700 px-2 py-0.5 rounded-full">${item.statut}</span>`;
+
+        let prioBadge = '';
+        if (item.priorite == 1) prioBadge = '<span class="text-red-600 font-bold">P1</span>';
+        else if (item.priorite == 2) prioBadge = '<span class="text-amber-600 font-semibold">P2</span>';
+        else prioBadge = '<span class="text-slate-400">P3</span>';
+
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-slate-50 transition border-b border-slate-100';
+        tr.innerHTML = `
+          <td class="p-3 text-center">${prioBadge}</td>
+          <td class="p-3 font-semibold text-slate-900 max-w-xs truncate" title="${item.titre}">${item.titre}</td>
+          <td class="p-3 text-slate-600 max-w-[140px] truncate" title="${item.thematique}">${item.thematique}</td>
+          <td class="p-3">${statusBadge}</td>
+          <td class="p-3 text-slate-700">${item.attribue_a || '-'}</td>
+          <td class="p-3 text-slate-600">
+            <div class="font-medium">${item.service || '-'}</div>
+            <div class="text-[10px] text-slate-400">${item.contact || ''}</div>
+          </td>
+          <td class="p-3 text-slate-500">${item.date_envoi || '-'}</td>
+          <td class="p-3 font-semibold">
+            ${item.date_butoire ? `<div>${item.date_butoire}</div>` : '<span class="text-slate-300">-</span>'}
+            ${rel.status !== 'none' ? `<span class="inline-block mt-0.5 text-[10px] px-1.5 py-0.2 border rounded-md font-bold ${rel.class}">${rel.label}</span>` : ''}
+          </td>
+          <td class="p-3 text-right space-x-1">
+            ${item.statut === 'Envoyé service' ? `
+              <button onclick="openRelanceModal(${item.id})" class="p-1.5 bg-amber-50 text-amber-700 hover:bg-amber-100 rounded-lg transition" title="Relancer le service">
+                <i class="fa-solid fa-paper-plane"></i>
+              </button>
+            ` : ''}
+            <button onclick="editFiche(${item.id})" class="p-1.5 bg-slate-100 text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 rounded-lg transition" title="Éditer">
+              <i class="fa-solid fa-pen-to-square"></i>
+            </button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      renderPagination(filteredFiches.length);
+    }
+
+    function renderPagination(totalItems) {
+      const totalPages = Math.ceil(totalItems / pageSize) || 1;
+      const paginationContainer = document.getElementById('pagination');
+      paginationContainer.innerHTML = '';
+
+      for (let i = 1; i <= totalPages; i++) {
+        const btn = document.createElement('button');
+        btn.className = `px-2.5 py-1 rounded-md text-xs font-semibold ${i === currentPage ? 'bg-indigo-600 text-white' : 'bg-white border text-slate-600 hover:bg-slate-100'}`;
+        btn.innerText = i;
+        btn.onclick = () => { currentPage = i; renderTable(); };
+        paginationContainer.appendChild(btn);
+      }
+    }
+
+    function renderKanban() {
+      const encours = fiches.filter(f => f.statut === 'En cours réécriture');
+      const envoye = fiches.filter(f => f.statut === 'Envoyé service');
+      const termine = fiches.filter(f => f.statut === 'Terminé');
+
+      document.getElementById('kanban-count-encours').innerText = encours.length;
+      document.getElementById('kanban-count-envoye').innerText = envoye.length;
+      document.getElementById('kanban-count-termine').innerText = termine.length;
+
+      const makeCard = (f) => {
+        const rel = getRelanceStatus(f);
+        return `
+          <div class="bg-white p-3.5 rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition space-y-2">
+            <div class="flex items-start justify-between gap-2">
+              <span class="text-[10px] font-bold uppercase tracking-wider text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-md">${f.thematique}</span>
+              <span class="text-[10px] font-bold text-slate-400">P${f.priorite}</span>
+            </div>
+            <h4 class="font-bold text-xs text-slate-800 leading-snug cursor-pointer hover:text-indigo-600" onclick="editFiche(${f.id})">${f.titre}</h4>
+            <div class="text-[11px] text-slate-500 flex items-center justify-between pt-1 border-t border-slate-100">
+              <div class="flex items-center space-x-1">
+                <i class="fa-solid fa-user text-[10px] text-slate-400"></i>
+                <span>${f.attribue_a || 'Non assigné'}</span>
+              </div>
+              ${f.service ? `<span class="text-[10px] bg-slate-100 px-1.5 py-0.5 rounded text-slate-600 truncate max-w-[100px]">${f.service}</span>` : ''}
+            </div>
+            ${rel.status !== 'none' ? `
+              <div class="pt-1 flex items-center justify-between">
+                <span class="text-[10px] px-2 py-0.5 border rounded-md font-bold ${rel.class}">${rel.label}</span>
+                ${f.statut === 'Envoyé service' ? `<button onclick="openRelanceModal(${f.id})" class="text-[10px] text-amber-700 font-bold hover:underline"><i class="fa-solid fa-paper-plane mr-1"></i>Relancer</button>` : ''}
+              </div>
+            ` : ''}
+          </div>
+        `;
+      };
+
+      document.getElementById('kanban-encours').innerHTML = encours.map(makeCard).join('');
+      document.getElementById('kanban-envoye').innerHTML = envoye.map(makeCard).join('');
+      document.getElementById('kanban-termine').innerHTML = termine.map(makeCard).join('');
+    }
+
+    function updateDashboard() {
+      const total = fiches.length;
+      const encours = fiches.filter(f => f.statut === 'En cours réécriture').length;
+      const envoye = fiches.filter(f => f.statut === 'Envoyé service').length;
+      const termine = fiches.filter(f => f.statut === 'Terminé').length;
+
+      document.getElementById('kpi-total').innerText = total;
+      document.getElementById('kpi-encours').innerText = encours;
+      document.getElementById('kpi-envoye').innerText = envoye;
+      document.getElementById('kpi-termine').innerText = termine;
+
+      updateRelanceCounts();
+
+      // Chart 1: Statuts
+      if (chartStatut) chartStatut.destroy();
+      chartStatut = new Chart(document.getElementById('chartStatut'), {
+        type: 'doughnut',
+        data: {
+          labels: ['En cours réécriture', 'Envoyé service', 'Terminé'],
+          datasets: [{
+            data: [encours, envoye, termine],
+            backgroundColor: ['#f59e0b', '#3b82f6', '#10b981']
+          }]
+        },
+        options: { responsive: true, maintainAspectRatio: false }
+      });
+
+      // Chart 2: Rédacteurs
+      const redacCounts = {};
+      fiches.forEach(f => {
+        const name = f.attribue_a || 'Non attribué';
+        redacCounts[name] = (redacCounts[name] || 0) + 1;
+      });
+
+      if (chartRedacteur) chartRedacteur.destroy();
+      chartRedacteur = new Chart(document.getElementById('chartRedacteur'), {
+        type: 'bar',
+        data: {
+          labels: Object.keys(redacCounts),
+          datasets: [{
+            label: 'Nombre de fiches',
+            data: Object.values(redacCounts),
+            backgroundColor: '#6366f1'
+          }]
+        },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+      });
+
+      // Chart 3: Thématiques
+      const themeCounts = {};
+      fiches.forEach(f => {
+        const t = f.thematique || 'Non spécifié';
+        themeCounts[t] = (themeCounts[t] || 0) + 1;
+      });
+
+      if (chartThematique) chartThematique.destroy();
+      chartThematique = new Chart(document.getElementById('chartThematique'), {
+        type: 'bar',
+        data: {
+          labels: Object.keys(themeCounts),
+          datasets: [{
+            label: 'Fiches par Thématique',
+            data: Object.values(themeCounts),
+            backgroundColor: '#0d9488'
+          }]
+        },
+        options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+      });
+    }
+
+    // Modal Actions
+    function openModal() {
+      document.getElementById('form-fiche').reset();
+      document.getElementById('field-id').value = '';
+      document.getElementById('modal-title').innerText = 'Créer une nouvelle fiche';
+      document.getElementById('btn-delete').classList.add('hidden');
+      document.getElementById('modal-fiche').classList.remove('hidden');
+    }
+
+    function editFiche(id) {
+      const item = fiches.find(f => f.id === id);
+      if (!item) return;
+
+      document.getElementById('field-id').value = item.id;
+      document.getElementById('field-titre').value = item.titre;
+      document.getElementById('field-thematique').value = item.thematique;
+      document.getElementById('field-priorite').value = item.priorite || 2;
+      document.getElementById('field-statut').value = item.statut;
+      document.getElementById('field-attribue').value = item.attribue_a || '';
+      document.getElementById('field-relecture1').value = item.relecture_1 || '';
+      document.getElementById('field-relecture2').value = item.relecture_2 || '';
+      document.getElementById('field-date-envoi').value = item.date_envoi || '';
+      document.getElementById('field-date-butoire').value = item.date_butoire || '';
+      document.getElementById('field-dga').value = item.dga || '';
+      document.getElementById('field-service').value = item.service || '';
+      document.getElementById('field-contact').value = item.contact || '';
+      document.getElementById('field-commentaires').value = item.commentaires || '';
+
+      document.getElementById('modal-title').innerText = `Éditer : ${item.titre}`;
+      document.getElementById('btn-delete').classList.remove('hidden');
+      document.getElementById('modal-fiche').classList.remove('hidden');
+    }
+
+    function closeModal() {
+      document.getElementById('modal-fiche').classList.add('hidden');
+    }
+
+    function saveFiche(e) {
+      e.preventDefault();
+      const id = document.getElementById('field-id').value;
+
+      const payload = {
+        id: id ? parseInt(id) : Date.now(),
+        titre: document.getElementById('field-titre').value,
+        thematique: document.getElementById('field-thematique').value,
+        priorite: document.getElementById('field-priorite').value,
+        statut: document.getElementById('field-statut').value,
+        attribue_a: document.getElementById('field-attribue').value,
+        relecture_1: document.getElementById('field-relecture1').value,
+        relecture_2: document.getElementById('field-relecture2').value,
+        date_envoi: document.getElementById('field-date-envoi').value,
+        date_butoire: document.getElementById('field-date-butoire').value,
+        dga: document.getElementById('field-dga').value,
+        service: document.getElementById('field-service').value,
+        contact: document.getElementById('field-contact').value,
+        commentaires: document.getElementById('field-commentaires').value
+      };
+
+      if (id) {
+        const index = fiches.findIndex(f => f.id === parseInt(id));
+        if (index !== -1) fiches[index] = payload;
+      } else {
+        fiches.unshift(payload);
+      }
+
+      saveToLocalStorage();
+      initDropdowns();
+      applyFilters();
+      closeModal();
+    }
+
+    function deleteFiche() {
+      const id = parseInt(document.getElementById('field-id').value);
+      if (confirm('Êtes-vous sûr de vouloir supprimer cette fiche ?')) {
+        fiches = fiches.filter(f => f.id !== id);
+        saveToLocalStorage();
+        applyFilters();
+        closeModal();
+      }
+    }
+
+    // Relance Modal
+    function openRelanceModal(id) {
+      const item = fiches.find(f => f.id === id);
+      if (!item) return;
+
+      const toText = `${item.contact ? item.contact + ' - ' : ''}${item.service || 'Service Référent'} (${item.dga || 'DGA'})`;
+      const subject = `[Relance] Relecture de la fiche aide : ${item.titre}`;
+      const body = `Bonjour ${item.contact || 'l\'équipe'},\n\nSauf erreur de notre part, nous sommes toujours dans l'attente de votre retour de validation pour la fiche d'aide suivante :\n\n📌 Titre : ${item.titre}\n🏛️ Service : ${item.service || 'N/A'}\n🗓️ Date d'envoi initiale : ${item.date_envoi || 'N/A'}\n🚨 Date limite recommandée : ${item.date_butoire || 'Au plus vite'}\n\nPourriez-vous nous indiquer si les adaptations en langage clair vous conviennent ou nous faire part de vos ajustements ?\n\nEn vous remerciant par avance pour votre collaboration.\n\nCordialement,\nL'équipe de refonte des aides - Département du Calvados`;
+
+      document.getElementById('relance-to').value = toText;
+      document.getElementById('relance-subject').value = subject;
+      document.getElementById('relance-body').value = body;
+
+      const mailto = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+      document.getElementById('relance-mailto-link').href = mailto;
+
+      document.getElementById('modal-relance').classList.remove('hidden');
+    }
+
+    function closeRelanceModal() {
+      document.getElementById('modal-relance').classList.add('hidden');
+    }
+
+    function copyRelanceText() {
+      const bodyText = document.getElementById('relance-body').value;
+      navigator.clipboard.writeText(bodyText);
+      alert('Texte de relance copié dans le presse-papier !');
+    }
+
+    // Import / Export JSON
+    function exportData() {
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(fiches, null, 2));
+      const downloadAnchor = document.createElement('a');
+      downloadAnchor.setAttribute("href", dataStr);
+      downloadAnchor.setAttribute("download", `calvados_fiches_aides_${new Date().toISOString().slice(0,10)}.json`);
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+    }
+
+    function importData(event) {
+      const fileReader = new FileReader();
+      fileReader.onload = function(e) {
+        try {
+          const importedData = JSON.parse(e.target.result);
+          if (Array.isArray(importedData)) {
+            fiches = importedData;
+            saveToLocalStorage();
+            initDropdowns();
+            applyFilters();
+            alert('Données importées avec succès !');
+          }
+        } catch(err) {
+          alert('Fichier JSON invalide.');
+        }
+      };
+      fileReader.readAsText(event.target.files[0]);
+    }
+  </script>
+</body>
+</html>
