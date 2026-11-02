@@ -39,6 +39,25 @@
     .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; }
     .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
     .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+    /* Redimensionnement des colonnes */
+    th.resizable {
+      position: relative;
+    }
+    .resizer {
+      position: absolute;
+      right: 0;
+      top: 0;
+      height: 100%;
+      width: 5px;
+      background: rgba(203, 213, 225, 0.5);
+      cursor: col-resize;
+      user-select: none;
+    }
+    .resizer:hover, .resizer.resizing {
+      background: #0284c7;
+      width: 6px;
+    }
   </style>
 </head>
 <body class="h-full text-slate-800 flex flex-col antialiased selection:bg-indigo-500 selection:text-white">
@@ -247,19 +266,19 @@
           <!-- Data Table -->
           <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
             <div class="overflow-x-auto custom-scrollbar">
-              <table class="w-full text-left border-collapse text-xs">
+              <table id="data-table" class="w-full text-left border-collapse text-xs table-fixed">
                 <thead>
                   <tr class="bg-slate-50 border-b border-slate-200 text-slate-600 uppercase font-semibold text-[11px] tracking-wider">
-                    <th class="p-3 w-12 text-center">Prio</th>
-                    <th class="p-3">Type</th>
-                    <th class="p-3">Titre de la fiche</th>
-                    <th class="p-3">Thématique</th>
-                    <th class="p-3">Statut</th>
-                    <th class="p-3">Attribué à</th>
-                    <th class="p-3">Service / Contact</th>
-                    <th class="p-3">Date Envoi</th>
-                    <th class="p-3">Date Butoire</th>
-                    <th class="p-3 text-right">Actions</th>
+                    <th class="p-3 w-12 text-center resizable">Prio<div class="resizer"></div></th>
+                    <th class="p-3 w-16 resizable">Type<div class="resizer"></div></th>
+                    <th class="p-3 w-64 resizable">Titre de la fiche<div class="resizer"></div></th>
+                    <th class="p-3 w-40 resizable">Thématique<div class="resizer"></div></th>
+                    <th class="p-3 w-32 resizable">Statut<div class="resizer"></div></th>
+                    <th class="p-3 w-32 resizable">Attribué à<div class="resizer"></div></th>
+                    <th class="p-3 w-44 resizable">Service / Contact<div class="resizer"></div></th>
+                    <th class="p-3 w-28 resizable">Date Envoi<div class="resizer"></div></th>
+                    <th class="p-3 w-32 resizable">Date Butoire<div class="resizer"></div></th>
+                    <th class="p-3 w-24 text-right">Actions</th>
                   </tr>
                 </thead>
                 <tbody id="table-body" class="divide-y divide-slate-100 font-medium">
@@ -482,10 +501,10 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-amber-50/60 p-3 rounded-xl border border-amber-200">
           <div>
             <label class="block font-semibold text-slate-700 mb-1">Date d'envoi service</label>
-            <input type="date" id="field-date-envoi" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sky-500 text-xs bg-white">
+            <input type="date" id="field-date-envoi" onchange="autoCalculateDeadline()" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sky-500 text-xs bg-white">
           </div>
           <div>
-            <label class="block font-semibold text-amber-900 mb-1">🚨 Date Butoire (Deadline / Relance)</label>
+            <label class="block font-semibold text-amber-900 mb-1">🚨 Date Butoire (Calculée automatiquement à +15 jours)</label>
             <input type="date" id="field-date-butoire" class="w-full px-3 py-2 border border-amber-300 rounded-lg focus:ring-2 focus:ring-amber-500 text-xs font-bold bg-white">
           </div>
         </div>
@@ -696,6 +715,121 @@
     const pageSize = 15;
     let chartStatut = null, chartRedacteur = null, chartThematique = null;
 
+    // Local Storage & List Helpers
+    function saveToLocalStorage() {
+      localStorage.setItem('calvados_fiches_data', JSON.stringify(fiches));
+      const lastUpdateEl = document.getElementById('last-update');
+      if (lastUpdateEl) {
+        lastUpdateEl.innerText = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+      }
+    }
+
+    function saveListsToLocalStorage() {
+      localStorage.setItem('calvados_backoffice_lists', JSON.stringify(lists));
+    }
+
+    function extractInitialListsFromFiches() {
+      const themes = [...new Set(fiches.map(f => f.thematique).filter(Boolean))];
+      const redacs = [...new Set(fiches.map(f => f.attribue_a).filter(Boolean))];
+      const dgas = [...new Set(fiches.map(f => f.dga).filter(Boolean))];
+
+      themes.forEach(t => { if (!lists.thematiques.includes(t)) lists.thematiques.push(t); });
+      redacs.forEach(r => { if (!lists.redacteurs.includes(r)) lists.redacteurs.push(r); });
+      dgas.forEach(d => { if (!lists.dga.includes(d)) lists.dga.push(d); });
+
+      lists.thematiques.sort();
+      lists.redacteurs.sort();
+      lists.dga.sort();
+    }
+
+    // Date / Relance helpers
+    function getRelanceStatus(fiche) {
+      if (!fiche.date_butoire || fiche.statut === 'Terminé') return { status: 'none', label: '', class: '' };
+      
+      const now = new Date();
+      now.setHours(0,0,0,0);
+      const target = new Date(fiche.date_butoire);
+      target.setHours(0,0,0,0);
+
+      const diffDays = Math.ceil((target - now) / (1000 * 60 * 60 * 24));
+
+      if (diffDays < 0) {
+        return { status: 'overdue', label: `🚨 Retard (${Math.abs(diffDays)}j)`, class: 'bg-red-100 text-red-800 border-red-300 animate-pulse' };
+      } else if (diffDays <= 2) {
+        return { status: 'warning', label: `⚠️ Relance (J-${diffDays})`, class: 'bg-amber-100 text-amber-800 border-amber-300' };
+      } else {
+        return { status: 'ok', label: `In (${diffDays}j)`, class: 'bg-slate-100 text-slate-600 border-slate-200' };
+      }
+    }
+
+    function updateRelanceCounts() {
+      const relanceList = fiches.filter(f => {
+        const st = getRelanceStatus(f);
+        return st.status === 'overdue' || st.status === 'warning';
+      });
+      
+      const badgeEl = document.getElementById('badge-relances-count');
+      const kpiEl = document.getElementById('alert-kpi-count');
+      if (badgeEl) badgeEl.innerText = relanceList.length;
+      if (kpiEl) kpiEl.innerText = relanceList.length;
+
+      const alertCard = document.getElementById('card-alert-relance');
+      if (alertCard) {
+        if (relanceList.length === 0) {
+          alertCard.classList.add('hidden');
+        } else {
+          alertCard.classList.remove('hidden');
+        }
+      }
+    }
+
+    function filterRelances() {
+      switchTab('table');
+      const relanceFilter = document.getElementById('filter-relance');
+      if (relanceFilter) relanceFilter.value = 'relance';
+      applyFilters();
+    }
+
+    function initDropdowns() {
+      populateSelect('filter-statut', lists.statuts, 'Tous les statuts');
+      populateSelect('filter-typologie', lists.typologies, 'Toutes typologies');
+      populateSelect('filter-thematique', lists.thematiques, 'Toutes les thématiques');
+      populateSelect('filter-redacteur', lists.redacteurs, 'Tous les rédacteurs');
+
+      populateSelect('field-statut', lists.statuts);
+      populateSelect('field-typologie', lists.typologies);
+      populateSelect('field-thematique', lists.thematiques);
+      populateSelect('field-attribue', lists.redacteurs, 'Non attribué');
+      populateSelect('field-relecture1', lists.relecteurs, 'Aucun');
+      populateSelect('field-relecture2', lists.relecteurs, 'Aucun');
+      populateSelect('field-dga', lists.dga, 'Non spécifié');
+    }
+
+    function renderBackoffice() {
+      const keys = ['statuts', 'typologies', 'dga', 'thematiques', 'redacteurs', 'relecteurs'];
+      keys.forEach(key => {
+        const listEl = document.getElementById(`list-bo-${key}`);
+        const countEl = document.getElementById(`count-bo-${key}`);
+        if (!listEl) return;
+
+        countEl.innerText = lists[key].length;
+        listEl.innerHTML = '';
+
+        lists[key].forEach((item, index) => {
+          const li = document.createElement('li');
+          li.className = 'flex items-center justify-between p-2 bg-slate-50 border rounded-lg hover:bg-slate-100 transition';
+          li.innerHTML = `
+            <span class="font-medium text-slate-800">${item}</span>
+            <div class="space-x-1">
+              <button onclick="editBoItem('${key}', ${index})" class="text-sky-600 hover:text-sky-800 p-1"><i class="fa-solid fa-pen-to-square"></i></button>
+              <button onclick="deleteBoItem('${key}', ${index})" class="text-red-500 hover:text-red-700 p-1"><i class="fa-solid fa-trash"></i></button>
+            </div>
+          `;
+          listEl.appendChild(li);
+        });
+      });
+    }
+
     // Load initial data
     window.addEventListener('DOMContentLoaded', () => {
       const savedData = localStorage.getItem('calvados_fiches_data');
@@ -729,148 +863,61 @@
       renderBackoffice();
       applyFilters();
       updateDashboard();
+      initColumnResizable();
     });
 
-    function extractInitialListsFromFiches() {
-      const statuts = new Set(lists.statuts);
-      const typologies = new Set(lists.typologies);
-      const dgas = new Set(lists.dga);
-      const thematiques = new Set(lists.thematiques);
-      const redacteurs = new Set(lists.redacteurs);
-      const relecteurs = new Set(lists.relecteurs);
-
-      fiches.forEach(f => {
-        if (f.statut) statuts.add(f.statut);
-        if (f.typologie) typologies.add(f.typologie);
-        if (f.dga) dgas.add(f.dga);
-        if (f.thematique) thematiques.add(f.thematique);
-        if (f.attribue_a) redacteurs.add(f.attribue_a);
-        if (f.relecture_1) relecteurs.add(f.relecture_1);
-        if (f.relecture_2) relecteurs.add(f.relecture_2);
-      });
-
-      lists.statuts = Array.from(statuts);
-      lists.typologies = Array.from(typologies).sort();
-      lists.dga = Array.from(dgas).sort();
-      lists.thematiques = Array.from(thematiques).sort();
-      lists.redacteurs = Array.from(redacteurs).sort();
-      lists.relecteurs = Array.from(relecteurs).sort();
-    }
-
-    function saveToLocalStorage() {
-      localStorage.setItem('calvados_fiches_data', JSON.stringify(fiches));
-      document.getElementById('last-update').innerText = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-    }
-
-    function saveListsToLocalStorage() {
-      localStorage.setItem('calvados_backoffice_lists', JSON.stringify(lists));
-    }
-
-    // Helper to update relance notification badge counts
-    function updateRelanceCounts() {
-      const relances = fiches.filter(f => {
-        const st = getRelanceStatus(f);
-        return st.status === 'overdue' || st.status === 'warning';
-      });
-
-      const badge = document.getElementById('badge-relances-count');
-      if (badge) badge.innerText = relances.length;
-
-      const alertCount = document.getElementById('alert-kpi-count');
-      if (alertCount) alertCount.innerText = relances.length;
-
-      const cardAlert = document.getElementById('card-alert-relance');
-      if (cardAlert) {
-        if (relances.length === 0) {
-          cardAlert.classList.add('hidden');
-        } else {
-          cardAlert.classList.remove('hidden');
+    // Auto-calculate deadline (+15 days from Date Envoi)
+    function autoCalculateDeadline() {
+      const dateEnvoiInput = document.getElementById('field-date-envoi');
+      const dateButoireInput = document.getElementById('field-date-butoire');
+      
+      if (dateEnvoiInput && dateEnvoiInput.value) {
+        const dateEnvoi = new Date(dateEnvoiInput.value);
+        if (!isNaN(dateEnvoi.getTime())) {
+          dateEnvoi.setDate(dateEnvoi.getDate() + 15);
+          const yyyy = dateEnvoi.getFullYear();
+          const mm = String(dateEnvoi.getMonth() + 1).padStart(2, '0');
+          const dd = String(dateEnvoi.getDate()).padStart(2, '0');
+          dateButoireInput.value = `${yyyy}-${mm}-${dd}`;
         }
       }
     }
 
-    // Filter list specifically for relances J-2 / Overdue
-    function filterRelances() {
-      switchTab('table');
-      const selRelance = document.getElementById('filter-relance');
-      if (selRelance) selRelance.value = 'relance';
-      applyFilters();
-    }
+    // Dynamic Column Resizing Logic
+    function initColumnResizable() {
+      const table = document.getElementById('data-table');
+      if (!table) return;
 
-    // Date / Relance helpers
-    function getRelanceStatus(fiche) {
-      if (!fiche.date_butoire || fiche.statut === 'Terminé') return { status: 'none', label: '', class: '' };
-      
-      const now = new Date();
-      now.setHours(0,0,0,0);
-      const target = new Date(fiche.date_butoire);
-      target.setHours(0,0,0,0);
+      const cols = table.querySelectorAll('th.resizable');
+      cols.forEach(col => {
+        const resizer = col.querySelector('.resizer');
+        if (!resizer) return;
 
-      const diffDays = Math.ceil((target - now) / (1000 * 60 * 60 * 24));
+        let x = 0;
+        let w = 0;
 
-      if (diffDays < 0) {
-        return { status: 'overdue', label: `🚨 Retard (${Math.abs(diffDays)}j)`, class: 'bg-red-100 text-red-800 border-red-300 animate-pulse' };
-      } else if (diffDays <= 2) {
-        return { status: 'warning', label: `⚠️ Relance (J-${diffDays})`, class: 'bg-amber-100 text-amber-800 border-amber-300' };
-      } else {
-        return { status: 'ok', label: `Dans ${diffDays}j`, class: 'bg-slate-100 text-slate-600 border-slate-200' };
-      }
-    }
+        const mouseDownHandler = function(e) {
+          x = e.clientX;
+          const styles = window.getComputedStyle(col);
+          w = parseInt(styles.width, 10);
 
-    function initDropdowns() {
-      // Filter options
-      const selStatut = document.getElementById('filter-statut');
-      selStatut.innerHTML = '<option value="">Tous les statuts</option>';
-      lists.statuts.forEach(s => selStatut.innerHTML += `<option value="${s}">${s}</option>`);
+          document.addEventListener('mousemove', mouseMoveHandler);
+          document.addEventListener('mouseup', mouseUpHandler);
+          resizer.classList.add('resizing');
+        };
 
-      const selType = document.getElementById('filter-typologie');
-      selType.innerHTML = '<option value="">Toutes typologies</option>';
-      lists.typologies.forEach(t => selType.innerHTML += `<option value="${t}">${t}</option>`);
+        const mouseMoveHandler = function(e) {
+          const dx = e.clientX - x;
+          col.style.width = `${Math.max(w + dx, 40)}px`;
+        };
 
-      const selTheme = document.getElementById('filter-thematique');
-      selTheme.innerHTML = '<option value="">Toutes les thématiques</option>';
-      lists.thematiques.forEach(t => selTheme.innerHTML += `<option value="${t}">${t}</option>`);
+        const mouseUpHandler = function() {
+          document.removeEventListener('mousemove', mouseMoveHandler);
+          document.removeEventListener('mouseup', mouseUpHandler);
+          resizer.classList.remove('resizing');
+        };
 
-      const selRedac = document.getElementById('filter-redacteur');
-      selRedac.innerHTML = '<option value="">Tous les rédacteurs</option>';
-      lists.redacteurs.forEach(r => selRedac.innerHTML += `<option value="${r}">${r}</option>`);
-
-      // Form options
-      populateSelect('field-statut', lists.statuts, 'Sélectionner un statut...');
-      populateSelect('field-typologie', lists.typologies, 'Sélectionner une typologie...');
-      populateSelect('field-thematique', lists.thematiques, 'Sélectionner...');
-      populateSelect('field-attribue', lists.redacteurs, 'Non attribué');
-      populateSelect('field-relecture1', lists.relecteurs, 'Aucun');
-      populateSelect('field-relecture2', lists.relecteurs, 'Aucun');
-      populateSelect('field-dga', lists.dga, 'Non spécifiée');
-    }
-
-    // BACKOFFICE MANAGEMENT
-    function renderBackoffice() {
-      ['statuts', 'typologies', 'dga', 'thematiques', 'redacteurs', 'relecteurs'].forEach(key => {
-        const container = document.getElementById(`list-bo-${key}`);
-        const countSpan = document.getElementById(`count-bo-${key}`);
-        if (!container) return;
-
-        countSpan.innerText = lists[key].length;
-        container.innerHTML = '';
-
-        lists[key].forEach((item, index) => {
-          const li = document.createElement('li');
-          li.className = 'flex items-center justify-between p-2 bg-slate-50 border border-slate-200 rounded-lg group hover:bg-slate-100 transition';
-          li.innerHTML = `
-            <span class="font-medium text-slate-800 truncate max-w-[180px]">${item}</span>
-            <div class="flex items-center space-x-1 opacity-80 group-hover:opacity-100">
-              <button onclick="editBoItem('${key}', ${index})" class="p-1 text-slate-400 hover:text-sky-600 transition" title="Modifier">
-                <i class="fa-solid fa-pen"></i>
-              </button>
-              <button onclick="deleteBoItem('${key}', ${index})" class="p-1 text-slate-400 hover:text-red-600 transition" title="Supprimer">
-                <i class="fa-solid fa-trash"></i>
-              </button>
-            </div>
-          `;
-          container.appendChild(li);
-        });
+        resizer.addEventListener('mousedown', mouseDownHandler);
       });
     }
 
