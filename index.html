@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="fr" class="h-full bg-slate-50">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Suivi Refonte Aides & Services - Calvados</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+    body { font-family: 'Inter', sans-serif; }
+    .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+  </style>
+</head>
+<body class="h-full text-slate-800 flex flex-col antialiased selection:bg-indigo-500 selection:text-white">
+
+  <div id="app" class="flex flex-col h-full overflow-hidden">
+    <!-- Header -->
+    <header class="bg-slate-900 text-white border-b border-slate-800 shadow-lg shrink-0">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+        <div class="flex items-center space-x-3">
+          <div class="bg-indigo-600 text-white p-2 rounded-lg font-bold text-xl flex items-center justify-center w-10 h-10 shadow-md">
+            14
+          </div>
+          <div>
+            <h1 class="text-lg font-bold tracking-tight text-white leading-tight">Suivi Refonte des Fiches Aides</h1>
+            <p class="text-xs text-slate-400">Département du Calvados — Langage Clair & FALC</p>
+          </div>
+        </div>
+
+        <div class="flex items-center space-x-3">
+          <button id="btn-relances" onclick="filterRelances()" class="hidden sm:flex items-center space-x-2 bg-amber-500/20 text-amber-300 border border-amber-500/30 px-3 py-1.5 rounded-lg text-xs font-semibold hover:bg-amber-500/30 transition">
+            <i class="fa-solid fa-bell text-amber-400 animate-pulse"></i>
+            <span>Relances J-2 : <span id="badge-relances-count" class="font-bold underline">0</span></span>
+          </button>
+          <button onclick="exportData()" class="flex items-center space-x-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-3 py-1.5 rounded-lg text-xs font-medium transition">
+            <i class="fa-solid fa-download"></i>
+            <span class="hidden md:inline">Exporter</span>
+          </button>
+          <label class="flex items-center space-x-1.5 bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1.5 rounded-lg text-xs font-semibold shadow cursor-pointer transition">
+            <i class="fa-solid fa-upload"></i>
+            <span class="hidden md:inline">Importer</span>
+            <input type="file" id="import-file" class="hidden" accept=".json" onchange="importData(event)">
+          </label>
+          <button onclick="openModal()" class="flex items-center space-x-1.5 bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded-lg text-xs font-semibold shadow transition">
+            <i class="fa-solid fa-plus"></i>
+            <span>Nouvelle Fiche</span>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Navigation & Tabs -->
+    <nav class="bg-white border-b border-slate-200 shadow-sm shrink-0">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-12">
+        <div class="flex space-x-1">
+          <button onclick="switchTab('dashboard')" id="tab-dashboard" class="tab-btn px-4 py-2 text-xs font-semibold rounded-md text-indigo-600 bg-indigo-50 flex items-center space-x-2 transition">
+            <i class="fa-solid fa-chart-pie"></i>
+            <span>Tableau de bord</span>
+          </button>
+          <button onclick="switchTab('table')" id="tab-table" class="tab-btn px-4 py-2 text-xs font-medium rounded-md text-slate-600 hover:text-slate-900 hover:bg-slate-100 flex items-center space-x-2 transition">
+            <i class="fa-solid fa-list-check"></i>
+            <span>Liste Fiches (<span id="total-count">0</span>)</span>
+          </button>
+          <button onclick="switchTab
