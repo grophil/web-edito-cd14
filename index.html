@@ -3,10 +3,35 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Suivi Refonte Aides & Services - Calvados</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <title>Suivi Refonte des Fiches Aides — Calvados</title>
+  
+  <!-- Tailwind CSS Framework Standalone CDN -->
+  <script src="https://cdn.tailwindcss.com?plugins=forms,typography,aspect-ratio"></script>
+  <script>
+    tailwind.config = {
+      corePlugins: { preflight: true },
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#f0f9ff',
+              100: '#e0f2fe',
+              500: '#0284c7',
+              600: '#0284c7',
+              700: '#0369a1',
+              800: '#075985',
+              900: '#0c4a6e',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  
+  <!-- FontAwesome Icons & Chart.js -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
     body { font-family: 'Inter', sans-serif; }
@@ -23,32 +48,35 @@
     <header class="bg-slate-900 text-white border-b border-slate-800 shadow-lg shrink-0">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         <div class="flex items-center space-x-3">
-          <div class="bg-indigo-600 text-white p-2 rounded-lg font-bold text-xl flex items-center justify-center w-10 h-10 shadow-md">
+          <div class="bg-sky-600 text-white p-2 rounded-xl font-bold text-xl flex items-center justify-center w-10 h-10 shadow-md">
             14
           </div>
           <div>
             <h1 class="text-lg font-bold tracking-tight text-white leading-tight">Suivi Refonte des Fiches Aides</h1>
-            <p class="text-xs text-slate-400">Département du Calvados — Langage Clair & FALC</p>
+            <p class="text-xs text-slate-400">Département du Calvados — Langage Clair & Web</p>
           </div>
         </div>
 
-        <div class="flex items-center space-x-3">
-          <button id="btn-relances" onclick="filterRelances()" class="hidden sm:flex items-center space-x-2 bg-amber-500/20 text-amber-300 border border-amber-500/30 px-3 py-1.5 rounded-lg text-xs font-semibold hover:bg-amber-500/30 transition">
+        <div class="flex items-center space-x-2 sm:space-x-3">
+          <button id="btn-relances" onclick="filterRelances()" class="flex items-center space-x-2 bg-amber-500/20 text-amber-300 border border-amber-500/30 px-3 py-1.5 rounded-lg text-xs font-semibold hover:bg-amber-500/30 transition">
             <i class="fa-solid fa-bell text-amber-400 animate-pulse"></i>
             <span>Relances J-2 : <span id="badge-relances-count" class="font-bold underline">0</span></span>
           </button>
-          <button onclick="exportData()" class="flex items-center space-x-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-3 py-1.5 rounded-lg text-xs font-medium transition">
+          
+          <button onclick="exportData()" class="hidden sm:flex items-center space-x-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-3 py-1.5 rounded-lg text-xs font-medium transition">
             <i class="fa-solid fa-download"></i>
-            <span class="hidden md:inline">Exporter</span>
+            <span>Exporter</span>
           </button>
-          <label class="flex items-center space-x-1.5 bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1.5 rounded-lg text-xs font-semibold shadow cursor-pointer transition">
+          
+          <label class="hidden sm:flex items-center space-x-1.5 bg-sky-600 hover:bg-sky-500 text-white px-3 py-1.5 rounded-lg text-xs font-semibold shadow cursor-pointer transition">
             <i class="fa-solid fa-upload"></i>
-            <span class="hidden md:inline">Importer</span>
+            <span>Importer</span>
             <input type="file" id="import-file" class="hidden" accept=".json" onchange="importData(event)">
           </label>
+          
           <button onclick="openModal()" class="flex items-center space-x-1.5 bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded-lg text-xs font-semibold shadow transition">
             <i class="fa-solid fa-plus"></i>
-            <span>Nouvelle Fiche</span>
+            <span class="hidden md:inline">Nouvelle Fiche</span>
           </button>
         </div>
       </div>
@@ -58,22 +86,26 @@
     <nav class="bg-white border-b border-slate-200 shadow-sm shrink-0">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-12">
         <div class="flex space-x-1">
-          <button onclick="switchTab('dashboard')" id="tab-dashboard" class="tab-btn px-4 py-2 text-xs font-semibold rounded-md text-indigo-600 bg-indigo-50 flex items-center space-x-2 transition">
+          <button onclick="switchTab('dashboard')" id="tab-dashboard" class="tab-btn px-4 py-2 text-xs font-semibold rounded-md text-sky-600 bg-sky-50 flex items-center space-x-2 transition">
             <i class="fa-solid fa-chart-pie"></i>
-            <span>Tableau de bord</span>
+            <span>Dashboard</span>
           </button>
           <button onclick="switchTab('table')" id="tab-table" class="tab-btn px-4 py-2 text-xs font-medium rounded-md text-slate-600 hover:text-slate-900 hover:bg-slate-100 flex items-center space-x-2 transition">
             <i class="fa-solid fa-list-check"></i>
-            <span>Liste Fiches (<span id="total-count">0</span>)</span>
+            <span>Liste des Fiches (<span id="total-count">0</span>)</span>
           </button>
           <button onclick="switchTab('kanban')" id="tab-kanban" class="tab-btn px-4 py-2 text-xs font-medium rounded-md text-slate-600 hover:text-slate-900 hover:bg-slate-100 flex items-center space-x-2 transition">
             <i class="fa-solid fa-columns"></i>
             <span>Vue Kanban</span>
           </button>
+          <button onclick="switchTab('backoffice')" id="tab-backoffice" class="tab-btn px-4 py-2 text-xs font-medium rounded-md text-slate-600 hover:text-slate-900 hover:bg-slate-100 flex items-center space-x-2 transition">
+            <i class="fa-solid fa-sliders"></i>
+            <span>Back-Office</span>
+          </button>
         </div>
 
         <div class="text-xs text-slate-500 font-medium">
-          Dernière mise à jour : <span id="last-update" class="text-slate-700 font-semibold">Aujourd'hui</span>
+          Dernière màj : <span id="last-update" class="text-slate-700 font-semibold">En direct</span>
         </div>
       </div>
     </nav>
@@ -85,17 +117,17 @@
         <!-- TAB 1: DASHBOARD -->
         <div id="view-dashboard" class="space-y-6">
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div class="bg-white p-4 rounded-xl border border-slate-200/80 shadow-sm flex items-center justify-between">
+            <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
               <div>
                 <p class="text-xs font-semibold uppercase tracking-wider text-slate-500">Total Fiches</p>
                 <p id="kpi-total" class="text-2xl font-bold text-slate-900 mt-1">0</p>
               </div>
-              <div class="p-3 bg-indigo-50 text-indigo-600 rounded-xl">
+              <div class="p-3 bg-sky-50 text-sky-600 rounded-xl">
                 <i class="fa-solid fa-file-lines text-xl"></i>
               </div>
             </div>
 
-            <div class="bg-white p-4 rounded-xl border border-slate-200/80 shadow-sm flex items-center justify-between">
+            <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
               <div>
                 <p class="text-xs font-semibold uppercase tracking-wider text-amber-600">En cours réécriture</p>
                 <p id="kpi-encours" class="text-2xl font-bold text-amber-700 mt-1">0</p>
@@ -105,9 +137,9 @@
               </div>
             </div>
 
-            <div class="bg-white p-4 rounded-xl border border-slate-200/80 shadow-sm flex items-center justify-between">
+            <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
               <div>
-                <p class="text-xs font-semibold uppercase tracking-wider text-blue-600">Envoyés Service</p>
+                <p class="text-xs font-semibold uppercase tracking-wider text-blue-600">Envoyé Service</p>
                 <p id="kpi-envoye" class="text-2xl font-bold text-blue-700 mt-1">0</p>
               </div>
               <div class="p-3 bg-blue-50 text-blue-600 rounded-xl">
@@ -115,9 +147,9 @@
               </div>
             </div>
 
-            <div class="bg-white p-4 rounded-xl border border-slate-200/80 shadow-sm flex items-center justify-between">
+            <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
               <div>
-                <p class="text-xs font-semibold uppercase tracking-wider text-emerald-600">Terminés / Validés</p>
+                <p class="text-xs font-semibold uppercase tracking-wider text-emerald-600">Terminé / Validé</p>
                 <p id="kpi-termine" class="text-2xl font-bold text-emerald-700 mt-1">0</p>
               </div>
               <div class="p-3 bg-emerald-50 text-emerald-600 rounded-xl">
@@ -134,10 +166,10 @@
               </div>
               <div>
                 <h3 class="font-bold text-sm">Alerte Suivi & Relances (<span id="alert-kpi-count">0</span> fiches)</h3>
-                <p class="text-xs text-amber-100">Des fiches ont dépassé leur date limite ou arrivent à échéance (J-2). Cliquez pour voir la liste.</p>
+                <p class="text-xs text-amber-100">Des fiches ont dépassé leur date limite ou arrivent à échéance (J-2). Cliquez pour filtrer la liste.</p>
               </div>
             </div>
-            <span class="bg-white text-slate-900 text-xs font-bold px-3 py-1.5 rounded-lg shadow">Voir les relances</span>
+            <span class="bg-white text-slate-900 text-xs font-bold px-3 py-1.5 rounded-lg shadow">Voir les fiches</span>
           </div>
 
           <!-- Charts Grid -->
@@ -154,7 +186,7 @@
 
             <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
               <h3 class="text-sm font-bold text-slate-800 mb-4 flex items-center justify-between">
-                <span>Charge par Rédacteur / Attribué à</span>
+                <span>Charge par Rédacteur</span>
                 <i class="fa-solid fa-chart-column text-slate-400"></i>
               </h3>
               <div class="relative h-64">
@@ -164,7 +196,7 @@
 
             <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm lg:col-span-2">
               <h3 class="text-sm font-bold text-slate-800 mb-4 flex items-center justify-between">
-                <span>Répartition par Thématique</span>
+                <span>Avancement par Thématique</span>
                 <i class="fa-solid fa-layer-group text-slate-400"></i>
               </h3>
               <div class="relative h-64">
@@ -181,32 +213,33 @@
             <div class="flex flex-wrap items-center gap-3 flex-1">
               <div class="relative min-w-[200px] flex-1 sm:flex-none">
                 <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-400 text-xs"></i>
-                <input type="text" id="filter-search" oninput="applyFilters()" placeholder="Rechercher une fiche, un contact..." class="w-full pl-8 pr-3 py-1.5 text-xs rounded-lg border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                <input type="text" id="filter-search" oninput="applyFilters()" placeholder="Rechercher titre, contact, service..." class="w-full pl-8 pr-3 py-1.5 text-xs rounded-lg border border-slate-300 focus:ring-2 focus:ring-sky-500">
               </div>
 
-              <select id="filter-statut" onchange="applyFilters()" class="text-xs py-1.5 px-3 rounded-lg border border-slate-300 focus:ring-2 focus:ring-indigo-500">
-                <option value="">Tous les statuts</option>
-                <option value="En cours réécriture">En cours réécriture</option>
-                <option value="Envoyé service">Envoyé service</option>
-                <option value="Terminé">Terminé</option>
-              </select>
+              <select id="filter-statut" onchange="applyFilters()" class="text-xs py-1.5 px-3 rounded-lg border border-slate-300 focus:ring-2 focus:ring-sky-500">
+              <option value="">Tous les statuts</option>
+            </select>
 
-              <select id="filter-thematique" onchange="applyFilters()" class="text-xs py-1.5 px-3 rounded-lg border border-slate-300 focus:ring-2 focus:ring-indigo-500">
+            <select id="filter-typologie" onchange="applyFilters()" class="text-xs py-1.5 px-3 rounded-lg border border-slate-300 focus:ring-2 focus:ring-sky-500 font-medium">
+              <option value="">Toutes typologies</option>
+            </select>
+
+            <select id="filter-thematique" onchange="applyFilters()" class="text-xs py-1.5 px-3 rounded-lg border border-slate-300 focus:ring-2 focus:ring-sky-500">
                 <option value="">Toutes les thématiques</option>
               </select>
 
-              <select id="filter-redacteur" onchange="applyFilters()" class="text-xs py-1.5 px-3 rounded-lg border border-slate-300 focus:ring-2 focus:ring-indigo-500">
+              <select id="filter-redacteur" onchange="applyFilters()" class="text-xs py-1.5 px-3 rounded-lg border border-slate-300 focus:ring-2 focus:ring-sky-500">
                 <option value="">Tous les rédacteurs</option>
               </select>
 
-              <select id="filter-relance" onchange="applyFilters()" class="text-xs py-1.5 px-3 rounded-lg border border-slate-300 focus:ring-2 focus:ring-indigo-500 font-medium text-amber-700 bg-amber-50">
+              <select id="filter-relance" onchange="applyFilters()" class="text-xs py-1.5 px-3 rounded-lg border border-amber-300 focus:ring-2 focus:ring-amber-500 font-medium text-amber-900 bg-amber-50">
                 <option value="">Toutes échéances</option>
                 <option value="relance">🚨 À relancer (J-2 ou Retard)</option>
-                <option value="urgent">🔴 En retard uniquement</option>
+                <option value="urgent">🔴 Retard uniquement</option>
               </select>
             </div>
 
-            <button onclick="resetFilters()" class="text-xs text-slate-500 hover:text-indigo-600 font-medium transition">
+            <button onclick="resetFilters()" class="text-xs text-slate-500 hover:text-sky-600 font-medium transition">
               Réinitialiser
             </button>
           </div>
@@ -218,6 +251,7 @@
                 <thead>
                   <tr class="bg-slate-50 border-b border-slate-200 text-slate-600 uppercase font-semibold text-[11px] tracking-wider">
                     <th class="p-3 w-12 text-center">Prio</th>
+                    <th class="p-3">Type</th>
                     <th class="p-3">Titre de la fiche</th>
                     <th class="p-3">Thématique</th>
                     <th class="p-3">Statut</th>
@@ -281,6 +315,112 @@
           </div>
         </div>
 
+        <!-- TAB 4: BACK-OFFICE -->
+        <div id="view-backoffice" class="hidden space-y-6">
+          <div class="flex items-center justify-between bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+            <div>
+              <h2 class="text-base font-bold text-slate-900">Administration du Back-Office</h2>
+              <p class="text-xs text-slate-500">Gérez les listes de valeurs référentielles utilisées dans l'ensemble de l'application.</p>
+            </div>
+            <button onclick="restoreDefaultLists()" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-semibold transition flex items-center space-x-1.5">
+              <i class="fa-solid fa-rotate-left"></i>
+              <span>Réinitialiser les listes</span>
+            </button>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Statuts -->
+            <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col h-full">
+              <h3 class="font-bold text-xs uppercase tracking-wider text-slate-700 mb-3 flex items-center justify-between border-b pb-2">
+                <span>Statuts</span>
+                <span id="count-bo-statuts" class="bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full text-[10px]">0</span>
+              </h3>
+              <div class="flex space-x-2 mb-3">
+                <input type="text" id="add-bo-statuts" placeholder="Ex: En validation" class="flex-1 px-2.5 py-1.5 border rounded-lg text-xs focus:ring-2 focus:ring-sky-500">
+                <button onclick="addBoItem('statuts')" class="bg-sky-600 hover:bg-sky-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold transition">
+                  <i class="fa-solid fa-plus"></i>
+                </button>
+              </div>
+              <ul id="list-bo-statuts" class="space-y-1.5 overflow-y-auto custom-scrollbar flex-1 max-h-60 text-xs"></ul>
+            </div>
+
+            <!-- Typologies -->
+            <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col h-full">
+              <h3 class="font-bold text-xs uppercase tracking-wider text-slate-700 mb-3 flex items-center justify-between border-b pb-2">
+                <span>Typologies de contenu</span>
+                <span id="count-bo-typologies" class="bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full text-[10px]">0</span>
+              </h3>
+              <div class="flex space-x-2 mb-3">
+                <input type="text" id="add-bo-typologies" placeholder="Ex: Fiche, Mission..." class="flex-1 px-2.5 py-1.5 border rounded-lg text-xs focus:ring-2 focus:ring-sky-500">
+                <button onclick="addBoItem('typologies')" class="bg-sky-600 hover:bg-sky-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold transition">
+                  <i class="fa-solid fa-plus"></i>
+                </button>
+              </div>
+              <ul id="list-bo-typologies" class="space-y-1.5 overflow-y-auto custom-scrollbar flex-1 max-h-60 text-xs"></ul>
+            </div>
+
+            <!-- DGA -->
+            <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col h-full">
+              <h3 class="font-bold text-xs uppercase tracking-wider text-slate-700 mb-3 flex items-center justify-between border-b pb-2">
+                <span>DGA</span>
+                <span id="count-bo-dga" class="bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full text-[10px]">0</span>
+              </h3>
+              <div class="flex space-x-2 mb-3">
+                <input type="text" id="add-bo-dga" placeholder="Ex: DGA-S" class="flex-1 px-2.5 py-1.5 border rounded-lg text-xs focus:ring-2 focus:ring-sky-500">
+                <button onclick="addBoItem('dga')" class="bg-sky-600 hover:bg-sky-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold transition">
+                  <i class="fa-solid fa-plus"></i>
+                </button>
+              </div>
+              <ul id="list-bo-dga" class="space-y-1.5 overflow-y-auto custom-scrollbar flex-1 max-h-60 text-xs"></ul>
+            </div>
+
+            <!-- Thématiques -->
+            <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col h-full">
+              <h3 class="font-bold text-xs uppercase tracking-wider text-slate-700 mb-3 flex items-center justify-between border-b pb-2">
+                <span>Thématiques</span>
+                <span id="count-bo-thematiques" class="bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full text-[10px]">0</span>
+              </h3>
+              <div class="flex space-x-2 mb-3">
+                <input type="text" id="add-bo-thematiques" placeholder="Ex: Sport" class="flex-1 px-2.5 py-1.5 border rounded-lg text-xs focus:ring-2 focus:ring-sky-500">
+                <button onclick="addBoItem('thematiques')" class="bg-sky-600 hover:bg-sky-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold transition">
+                  <i class="fa-solid fa-plus"></i>
+                </button>
+              </div>
+              <ul id="list-bo-thematiques" class="space-y-1.5 overflow-y-auto custom-scrollbar flex-1 max-h-60 text-xs"></ul>
+            </div>
+
+            <!-- Rédacteurs -->
+            <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col h-full">
+              <h3 class="font-bold text-xs uppercase tracking-wider text-slate-700 mb-3 flex items-center justify-between border-b pb-2">
+                <span>Rédacteurs</span>
+                <span id="count-bo-redacteurs" class="bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full text-[10px]">0</span>
+              </h3>
+              <div class="flex space-x-2 mb-3">
+                <input type="text" id="add-bo-redacteurs" placeholder="Ex: Jean D." class="flex-1 px-2.5 py-1.5 border rounded-lg text-xs focus:ring-2 focus:ring-sky-500">
+                <button onclick="addBoItem('redacteurs')" class="bg-sky-600 hover:bg-sky-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold transition">
+                  <i class="fa-solid fa-plus"></i>
+                </button>
+              </div>
+              <ul id="list-bo-redacteurs" class="space-y-1.5 overflow-y-auto custom-scrollbar flex-1 max-h-60 text-xs"></ul>
+            </div>
+
+            <!-- Relecteurs -->
+            <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col h-full">
+              <h3 class="font-bold text-xs uppercase tracking-wider text-slate-700 mb-3 flex items-center justify-between border-b pb-2">
+                <span>Relecteurs</span>
+                <span id="count-bo-relecteurs" class="bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full text-[10px]">0</span>
+              </h3>
+              <div class="flex space-x-2 mb-3">
+                <input type="text" id="add-bo-relecteurs" placeholder="Ex: Marie L." class="flex-1 px-2.5 py-1.5 border rounded-lg text-xs focus:ring-2 focus:ring-sky-500">
+                <button onclick="addBoItem('relecteurs')" class="bg-sky-600 hover:bg-sky-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold transition">
+                  <i class="fa-solid fa-plus"></i>
+                </button>
+              </div>
+              <ul id="list-bo-relecteurs" class="space-y-1.5 overflow-y-auto custom-scrollbar flex-1 max-h-60 text-xs"></ul>
+            </div>
+          </div>
+        </div>
+
       </div>
     </main>
   </div>
@@ -298,17 +438,21 @@
 
         <div>
           <label class="block font-semibold text-slate-700 mb-1">Titre de la fiche *</label>
-          <input type="text" id="field-titre" required class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 text-xs">
+          <input type="text" id="field-titre" required class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sky-500 text-xs">
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Typologie *</label>
+            <select id="field-typologie" required class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sky-500 text-xs font-semibold"></select>
+          </div>
           <div>
             <label class="block font-semibold text-slate-700 mb-1">Thématique *</label>
-            <input type="text" id="field-thematique" required class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 text-xs">
+            <select id="field-thematique" required class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sky-500 text-xs"></select>
           </div>
           <div>
             <label class="block font-semibold text-slate-700 mb-1">Priorité</label>
-            <select id="field-priorite" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 text-xs">
+            <select id="field-priorite" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sky-500 text-xs">
               <option value="1">1 (Haute)</option>
               <option value="2">2 (Moyenne)</option>
               <option value="3">3 (Basse)</option>
@@ -316,36 +460,32 @@
           </div>
           <div>
             <label class="block font-semibold text-slate-700 mb-1">Statut *</label>
-            <select id="field-statut" required class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 text-xs font-semibold">
-              <option value="En cours réécriture">En cours réécriture</option>
-              <option value="Envoyé service">Envoyé service</option>
-              <option value="Terminé">Terminé</option>
-            </select>
+            <select id="field-statut" required class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sky-500 text-xs font-semibold"></select>
           </div>
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div>
             <label class="block font-semibold text-slate-700 mb-1">Attribué à (Rédacteur)</label>
-            <input type="text" id="field-attribue" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 text-xs">
+            <select id="field-attribue" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sky-500 text-xs"></select>
           </div>
           <div>
             <label class="block font-semibold text-slate-700 mb-1">Relecture 1</label>
-            <input type="text" id="field-relecture1" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 text-xs">
+            <select id="field-relecture1" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sky-500 text-xs"></select>
           </div>
           <div>
             <label class="block font-semibold text-slate-700 mb-1">Relecture 2</label>
-            <input type="text" id="field-relecture2" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 text-xs">
+            <select id="field-relecture2" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sky-500 text-xs"></select>
           </div>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-amber-50/50 p-3 rounded-xl border border-amber-200">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-amber-50/60 p-3 rounded-xl border border-amber-200">
           <div>
             <label class="block font-semibold text-slate-700 mb-1">Date d'envoi service</label>
-            <input type="date" id="field-date-envoi" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 text-xs bg-white">
+            <input type="date" id="field-date-envoi" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sky-500 text-xs bg-white">
           </div>
           <div>
-            <label class="block font-semibold text-amber-900 mb-1">🚨 Date Butoire (Relance J-2)</label>
+            <label class="block font-semibold text-amber-900 mb-1">🚨 Date Butoire (Deadline / Relance)</label>
             <input type="date" id="field-date-butoire" class="w-full px-3 py-2 border border-amber-300 rounded-lg focus:ring-2 focus:ring-amber-500 text-xs font-bold bg-white">
           </div>
         </div>
@@ -353,21 +493,21 @@
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div>
             <label class="block font-semibold text-slate-700 mb-1">DGA</label>
-            <input type="text" id="field-dga" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 text-xs">
+            <select id="field-dga" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sky-500 text-xs"></select>
           </div>
           <div>
             <label class="block font-semibold text-slate-700 mb-1">Service Référent</label>
-            <input type="text" id="field-service" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 text-xs">
+            <input type="text" id="field-service" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sky-500 text-xs">
           </div>
           <div>
             <label class="block font-semibold text-slate-700 mb-1">Contact Référent</label>
-            <input type="text" id="field-contact" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 text-xs">
+            <input type="text" id="field-contact" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sky-500 text-xs">
           </div>
         </div>
 
         <div>
           <label class="block font-semibold text-slate-700 mb-1">Commentaires / Remarques</label>
-          <textarea id="field-commentaires" rows="2" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 text-xs"></textarea>
+          <textarea id="field-commentaires" rows="2" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sky-500 text-xs"></textarea>
         </div>
 
         <div class="pt-4 border-t flex justify-between items-center">
@@ -376,7 +516,7 @@
           </button>
           <div class="flex space-x-2">
             <button type="button" onclick="closeModal()" class="px-4 py-2 border rounded-lg text-slate-600 font-semibold hover:bg-slate-50 transition">Annuler</button>
-            <button type="submit" class="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg shadow transition">Enregistrer</button>
+            <button type="submit" class="px-5 py-2 bg-sky-600 hover:bg-sky-700 text-white font-semibold rounded-lg shadow transition">Enregistrer</button>
           </div>
         </div>
       </form>
@@ -401,7 +541,7 @@
         </div>
         <div>
           <label class="block font-semibold text-slate-700 mb-1">Objet du courriel</label>
-          <input type="text" id="relance-subject" class="w-full px-3 py-2 border rounded-lg font-semibold text-indigo-700">
+          <input type="text" id="relance-subject" class="w-full px-3 py-2 border rounded-lg font-semibold text-sky-700">
         </div>
         <div>
           <label class="block font-semibold text-slate-700 mb-1">Corps du message de relance</label>
@@ -422,8 +562,134 @@
     </div>
   </div>
 
-  <!-- SCRIPT APP LOGIC -->
+  <!-- SCRIPT APP LOGIC & EMBEDDED DATA -->
   <script>
+    // Complete 114 entries initial dataset embedded directly
+    let defaultFiches = [
+      {"id":1,"titre":"Accès à un logement : l'aide du Fonds de solidarité logement (FSL)","thematique":"logement","priorite":"1","statut":"Envoyé service","attribue_a":"Elise F.","relecture_1":"Anne L.","relecture_2":"","date_envoi":"","date_butoire":"2026-11-03","dga":"DGA-S","service":"Service habitat logement","contact":"V. Lopez","commentaires":""},
+      {"id":2,"titre":"Accompagnement social lié au logement (ASLL)","thematique":"logement","priorite":"1","statut":"Envoyé service","attribue_a":"Elise F.","relecture_1":"Anne L.","relecture_2":"","date_envoi":"2026-07-24","date_butoire":"","dga":"DGA-S","service":"Service habitat logement","contact":"V. Lopez","commentaires":""},
+      {"id":3,"titre":"Accueil d'un volontaire européen","thematique":"Education et collèges","priorite":"2","statut":"En cours réécriture","attribue_a":"Elise F.","relecture_1":"Elodie P.","relecture_2":"","date_envoi":"","date_butoire":"","dga":"","service":"","contact":"","commentaires":""},
+      {"id":4,"titre":"Aide à l'installation d'une chaudière à bois et/ou d'un réseau de chaleur primaire - Exploitants agricoles, associations et particuliers","thematique":"Aménagement et dévloppement du territoire","priorite":"2","statut":"En cours réécriture","attribue_a":"Elise F.","relecture_1":"","relecture_2":"","date_envoi":"","date_butoire":"","dga":"","service":"","contact":"","commentaires":""},
+      {"id":5,"titre":"Aide à l'accompagnement des collectivtités pour les projets d'approvisionnement local et la valorisation des circuits courts","thematique":"Aménagement et dévloppement du territoire","priorite":"3","statut":"En cours réécriture","attribue_a":"Elise F.","relecture_1":"","relecture_2":"","date_envoi":"","date_butoire":"2026-10-28","dga":"","service":"","contact":"","commentaires":""},
+      {"id":6,"titre":"Aide à l'acquisition de matériel nautique et sportif","thematique":"Sports et loisirs","priorite":"2","statut":"En cours réécriture","attribue_a":"Elise F.","relecture_1":"","relecture_2":"","date_envoi":"","date_butoire":"2026-11-03","dga":"","service":"","contact":"","commentaires":""},
+      {"id":7,"titre":"Aide à l'animation de la filière bois bocage","thematique":"Aménagement et dévloppement du territoire","priorite":"3","statut":"En cours réécriture","attribue_a":"Elise F.","relecture_1":"","relecture_2":"","date_envoi":"","date_butoire":"","dga":"","service":"","contact":"","commentaires":""},
+      {"id":8,"titre":"Aide à la création pour les artistes professionnels indépendants en arts visuels Fonds d'aide Ville de Caen / Département du Calvados","thematique":"Culture et patrimoine","priorite":"2","statut":"Envoyé service","attribue_a":"Elise F.","relecture_1":"Elodie P.","relecture_2":"","date_envoi":"2026-08-12","date_butoire":"","dga":"DGA-ECAT","service":"","contact":"","commentaires":""},
+      {"id":9,"titre":"Aide à la création pour les artisites professionnels indépendants du spectacle vivant","thematique":"Culture et patrimoine","priorite":"2","statut":"Envoyé service","attribue_a":"Elise F.","relecture_1":"Elodie P.","relecture_2":"","date_envoi":"2026-08-12","date_butoire":"2026-10-28","dga":"DGA-ECAT","service":"","contact":"","commentaires":""},
+      {"id":10,"titre":"Aide à la diffusion artistique et à la médiation culturelle","thematique":"Culture et patrimoine","priorite":"2","statut":"Envoyé service","attribue_a":"Elodie P.","relecture_1":"Elise F.","relecture_2":"","date_envoi":"2026-08-12","date_butoire":"","dga":"DGA-ECAT","service":"Service arts et territoires","contact":"","commentaires":""},
+      {"id":11,"titre":"Aide à la mutualisation et aux structures ressources","thematique":"Culture et patrimoine","priorite":"2","statut":"En cours réécriture","attribue_a":"","relecture_1":"","relecture_2":"","date_envoi":"","date_butoire":"2026-11-03","dga":"","service":"","contact":"","commentaires":""},
+      {"id":12,"titre":"Aide à la plantation de haies - collectivités","thematique":"Aménagement et dévloppement du territoire","priorite":"2","statut":"En cours réécriture","attribue_a":"Elise F.","relecture_1":"","relecture_2":"","date_envoi":"","date_butoire":"","dga":"","service":"","contact":"","commentaires":""},
+      {"id":13,"titre":"Aide à l'immobilier d'entreprise sous forme de prêt à taux zéro","thematique":"Aménagement et dévloppement du territoire","priorite":"2","statut":"En cours réécriture","attribue_a":"Elise F.","relecture_1":"","relecture_2":"","date_envoi":"","date_butoire":"2026-10-28","dga":"","service":"","contact":"","commentaires":""},
+      {"id":14,"titre":"Aide à l'immobilier d'entreprise touristisque","thematique":"Aménagement et dévloppement du territoire","priorite":"2","statut":"Terminé","attribue_a":"Elise F.","relecture_1":"","relecture_2":"","date_envoi":"","date_butoire":"","dga":"","service":"","contact":"","commentaires":""},
+      {"id":15,"titre":"Aide au développement de l'action culturelle en bibliothèque","thematique":"Culture et patrimoine","priorite":"2","statut":"Envoyé service","attribue_a":"Elodie P.","relecture_1":"Elise F.","relecture_2":"","date_envoi":"2026-08-12","date_butoire":"","dga":"DGA-ECAT","service":"Bibliothèque du Calvados","contact":"","commentaires":""},
+      {"id":16,"titre":"Aide au développement et à l'entretien de circuits qualité randonnée","thematique":"Aménagement et dévloppement du territoire","priorite":"2","statut":"Terminé","attribue_a":"Anne L.","relecture_1":"","relecture_2":"","date_envoi":"","date_butoire":"2026-11-03","dga":"","service":"","contact":"","commentaires":"Nouvelle fiche Calvados Attractivité - à réécrire en langage clair ?"},
+      {"id":17,"titre":"Aide aux commerces, à l'artisanat et aux services de proximité","thematique":"Aménagement et dévloppement du territoire","priorite":"2","statut":"En cours réécriture","attribue_a":"Elise F.","relecture_1":"","relecture_2":"","date_envoi":"","date_butoire":"2026-10-28","dga":"","service":"","contact":"","commentaires":""},
+      {"id":18,"titre":"Aide aux congrés, colloques et manifestations exceptionnelles","thematique":"Aménagement et dévloppement du territoire","priorite":"2","statut":"En cours réécriture","attribue_a":"Anne L.","relecture_1":"Elodie P.","relecture_2":"","date_envoi":"","date_butoire":"","dga":"","service":"","contact":"","commentaires":""},
+      {"id":19,"titre":"Aide aux échanges et cessions amiables d'immeubles ruraux","thematique":"Aménagement et dévloppement du territoire","priorite":"3","statut":"En cours réécriture","attribue_a":"Elise F.","relecture_1":"","relecture_2":"","date_envoi":"","date_butoire":"","dga":"","service":"","contact":"","commentaires":""},
+      {"id":20,"titre":"Aide aux festivals","thematique":"Culture et patrimoine","priorite":"2","statut":"Envoyé service","attribue_a":"Elodie P.","relecture_1":"Elise F.","relecture_2":"","date_envoi":"2026-08-12","date_butoire":"","dga":"DGA-ECAT","service":"Service arts et territoires","contact":"","commentaires":""},
+      {"id":21,"titre":"Aide aux grands clubs sportifs","thematique":"Sports et loisirs","priorite":"2","statut":"En cours réécriture","attribue_a":"Anne L.","relecture_1":"Elodie P.","relecture_2":"","date_envoi":"","date_butoire":"2026-11-03","dga":"","service":"","contact":"","commentaires":""},
+      {"id":22,"titre":"Aide aux manifestations sportives","thematique":"Sports et loisirs","priorite":"2","statut":"En cours réécriture","attribue_a":"Anne L.","relecture_1":"Elodie P.","relecture_2":"","date_envoi":"","date_butoire":"","dga":"","service":"","contact":"","commentaires":""},
+      {"id":23,"titre":"Aide aux publications, expositions, outils d'interprétation et animation du patrimoine","thematique":"Culture et patrimoine","priorite":"3","statut":"Envoyé service","attribue_a":"Elodie P.","relecture_1":"Elise F.","relecture_2":"","date_envoi":"2026-08-12","date_butoire":"","dga":"DGA-ECAT","service":"Service patrimoine","contact":"","commentaires":""},
+      {"id":24,"titre":"Aide aux structures conventionnées départementales et labels nationaux","thematique":"Culture et patrimoine","priorite":"2","statut":"Envoyé service","attribue_a":"Elise F.","relecture_1":"Elodie P.","relecture_2":"","date_envoi":"2026-08-12","date_butoire":"","dga":"DGA-ECAT","service":"","contact":"","commentaires":""},
+      {"id":25,"titre":"Aide financière pour des projets de recensement, d'étude et de fouille du patrimoine archéologique","thematique":"Culture et patrimoine","priorite":"3","statut":"Envoyé service","attribue_a":"Elise F.","relecture_1":"Elodie P.","relecture_2":"","date_envoi":"2026-08-12","date_butoire":"2026-10-28","dga":"DGA-ECAT","service":"","contact":"","commentaires":""},
+      {"id":26,"titre":"Aide générale aux clubs sportifs","thematique":"Sports et loisirs","priorite":"2","statut":"En cours réécriture","attribue_a":"Anne L.","relecture_1":"Elodie P.","relecture_2":"","date_envoi":"","date_butoire":"2026-11-03","dga":"","service":"","contact":"","commentaires":""},
+      {"id":27,"titre":"Aide pour l'adhésion au dispositif Eglises Ouvertes","thematique":"Culture et patrimoine","priorite":"3","statut":"Terminé","attribue_a":"Elodie P.","relecture_1":"","relecture_2":"","date_envoi":"","date_butoire":"","dga":"DGA-ECAT","service":"Service patrimoine","contact":"","commentaires":"vérifier si l'aide existe encore auprès du service\nAide non reportée en 2027, fiche annulée, validé par B Vallée, vu par EP le 20260810"},
+      {"id":28,"titre":"Aide pour la communication et la valorisation d'une activité agricole","thematique":"Aménagement et dévloppement du territoire","priorite":"2","statut":"En cours réécriture","attribue_a":"Elise F.","relecture_1":"","relecture_2":"","date_envoi":"","date_butoire":"","dga":"","service":"","contact":"","commentaires":""},
+      {"id":29,"titre":"Aide pour les manifestions agricoles","thematique":"Aménagement et dévloppement du territoire","priorite":"2","statut":"En cours réécriture","attribue_a":"Elise F.","relecture_1":"","relecture_2":"","date_envoi":"","date_butoire":"2026-10-28","dga":"","service":"","contact":"","commentaires":""},
+      {"id":30,"titre":"Aide pour un projet agricole inférieur à 10,000€HT","thematique":"Aménagement et dévloppement du territoire","priorite":"2","statut":"En cours réécriture","attribue_a":"Elise F.","relecture_1":"","relecture_2":"","date_envoi":"","date_butoire":"","dga":"","service":"","contact":"","commentaires":""},
+      {"id":31,"titre":"Aide pour l'organisation de cours de langue étrangère dans les comités de jumelage","thematique":"Education et collèges","priorite":"3","statut":"En cours réécriture","attribue_a":"Elise F.","relecture_1":"Elodie P.","relecture_2":"","date_envoi":"","date_butoire":"2026-11-03","dga":"","service":"","contact":"","commentaires":""},
+      {"id":32,"titre":"Aide sociale à l'hébergement (ASH)","thematique":"Seniors et aidants","priorite":"1","statut":"En cours réécriture","attribue_a":"","relecture_1":"","relecture_2":"","date_envoi":"","date_butoire":"","dga":"","service":"","contact":"","commentaires":""},
+      {"id":33,"titre":"Aides à la plantation de haies","thematique":"Aménagement et dévloppement du territoire","priorite":"2","statut":"En cours réécriture","attribue_a":"Elise F.","relecture_1":"","relecture_2":"","date_envoi":"","date_butoire":"2026-10-28","dga":"","service":"","contact":"","commentaires":""},
+      {"id":34,"titre":"Aides à la réalisation d'un plan de gestion de haies","thematique":"Aménagement et dévloppement du territoire","priorite":"2","statut":"En cours réécriture","attribue_a":"Elise F.","relecture_1":"","relecture_2":"","date_envoi":"","date_butoire":"","dga":"","service":"","contact":"","commentaires":""},
+      {"id":35,"titre":"Aides au développement et à l'entretien de circuits de qualité randonnée","thematique":"Aménagement et dévloppement du territoire","priorite":"3","statut":"En cours réécriture","attribue_a":"","relecture_1":"","relecture_2":"","date_envoi":"","date_butoire":"","dga":"","service":"","contact":"","commentaires":""},
+      {"id":36,"titre":"Aides aux petites communes rurales (APCR et APCR+)","thematique":"Aménagement et dévloppement du territoire","priorite":"1","statut":"En cours réécriture","attribue_a":"","relecture_1":"","relecture_2":"","date_envoi":"","date_butoire":"2026-11-03","dga":"","service":"","contact":"","commentaires":""},
+      {"id":37,"titre":"Aides familiales","thematique":"Enfance et famille","priorite":"1","statut":"En cours réécriture","attribue_a":"Elodie P.","relecture_1":"Elise F.","relecture_2":"","date_envoi":"","date_butoire":"2026-10-28","dga":"DGA-S","service":"","contact":"","commentaires":""},
+      {"id":38,"titre":"Aides pour la réhabilitation de l'assainissement non collectif des collectivités","thematique":"Aménagement et dévloppement du territoire","priorite":"2","statut":"En cours réécriture","attribue_a":"","relecture_1":"","relecture_2":"","date_envoi":"","date_butoire":"","dga":"","service":"","contact":"","commentaires":""},
+      {"id":39,"titre":"Allocation personnalisée d'autonomie (APA)","thematique":"Seniors et aidants","priorite":"1","statut":"En cours réécriture","attribue_a":"","relecture_1":"","relecture_2":"","date_envoi":"","date_butoire":"","dga":"","service":"","contact":"","commentaires":""},
+      {"id":40,"titre":"Appel à projets initiatives collèges (APIC)","thematique":"Education et collèges","priorite":"3","statut":"En cours réécriture","attribue_a":"Elodie P.","relecture_1":"","relecture_2":"","date_envoi":"","date_butoire":"","dga":"DGA-ECAT","service":"","contact":"","commentaires":""},
+      {"id":41,"titre":"Appel à projets sport santé collégiens","thematique":"Sports et loisirs","priorite":"3","statut":"En cours réécriture","attribue_a":"Anne L.","relecture_1":"Elodie P.","relecture_2":"","date_envoi":"","date_butoire":"2026-11-03","dga":"","service":"","contact":"","commentaires":""},
+      {"id":42,"titre":"Atelier de préparation à l'examen du code de la route","thematique":"emploi et insertion professionnelle","priorite":"3","statut":"En cours réécriture","attribue_a":"","relecture_1":"","relecture_2":"","date_envoi":"","date_butoire":"","dga":"","service":"","contact":"","commentaires":""},
+      {"id":43,"titre":"Ateliers de découverte et d'apprentissage pour savoir se déplacer en ville","thematique":"emploi et insertion professionnelle","priorite":"3","statut":"En cours réécriture","attribue_a":"","relecture_1":"","relecture_2":"","date_envoi":"","date_butoire":"","dga":"","service":"","contact":"","commentaires":""},
+      {"id":44,"titre":"Auto-écoles sociales","thematique":"emploi et insertion professionnelle","priorite":"3","statut":"En cours réécriture","attribue_a":"","relecture_1":"","relecture_2":"","date_envoi":"","date_butoire":"","dga":"","service":"","contact":"","commentaires":""},
+      {"id":45,"titre":"Autorisation d'occupation temporaire du domaine public maritime départemental","thematique":"Aménagement et dévloppement du territoire","priorite":"2","statut":"En cours réécriture","attribue_a":"","relecture_1":"","relecture_2":"","date_envoi":"","date_butoire":"2026-10-28","dga":"","service":"","contact":"","commentaires":""},
+      {"id":46,"titre":"Bénéficiaire du RSA: mise à jour de votre situation","thematique":"emploi et insertion professionnelle","priorite":"1","statut":"Envoyé service","attribue_a":"Elise F.","relecture_1":"","relecture_2":"","date_envoi":"2026-07-24","date_butoire":"2026-11-03","dga":"DGA-S","service":"Service insertion","contact":"","commentaires":""},
+      {"id":47,"titre":"Bourse aux sportifs en devenir","thematique":"Sports et loisirs","priorite":"2","statut":"En cours réécriture","attribue_a":"Anne L.","relecture_1":"Elodie P.","relecture_2":"","date_envoi":"","date_butoire":"","dga":"","service":"","contact":"","commentaires":""},
+      {"id":48,"titre":"Bourse d'installation à la vie autonome","thematique":"Enfance et famille","priorite":"1","statut":"En cours réécriture","attribue_a":"Elise F.","relecture_1":"Elodie P.","relecture_2":"","date_envoi":"","date_butoire":"","dga":"DGA-S","service":"","contact":"","commentaires":""},
+      {"id":49,"titre":"Bourses départementales collégiens","thematique":"Education et collèges","priorite":"1","statut":"En cours réécriture","attribue_a":"Elise F.","relecture_1":"Elodie P.","relecture_2":"","date_envoi":"","date_butoire":"2026-10-28","dga":"","service":"","contact":"","commentaires":""},
+      {"id":50,"titre":"Calvados Ingénierie : demande d'assistance technique en ligne","thematique":"Aménagement et dévloppement du territoire","priorite":"1","statut":"En cours réécriture","attribue_a":"","relecture_1":"","relecture_2":"","date_envoi":"","date_butoire":"","dga":"","service":"","contact":"","commentaires":""},
+      {"id":51,"titre":"Calvados Nature","thematique":"Aménagement et dévloppement du territoire","priorite":"3","statut":"En cours réécriture","attribue_a":"","relecture_1":"","relecture_2":"","date_envoi":"","date_butoire":"2026-11-03","dga":"","service":"","contact":"","commentaires":""},
+      {"id":52,"titre":"Citoyens du Calvados - Citoyens d'Europe","thematique":"Education et collèges","priorite":"3","statut":"En cours réécriture","attribue_a":"Elise F.","relecture_1":"Elodie P.","relecture_2":"","date_envoi":"","date_butoire":"","dga":"","service":"","contact":"","commentaires":""},
+      {"id":53,"titre":"Collège aux Archives","thematique":"Culture et patrimoine","priorite":"3","statut":"Envoyé service","attribue_a":"Elodie P.","relecture_1":"Elise F.","relecture_2":"","date_envoi":"2026-08-12","date_butoire":"2026-10-28","dga":"DGA-ECAT","service":"Direction des archives","contact":"","commentaires":""},
+      {"id":54,"titre":"Collège au Cinéma - NEW","thematique":"Culture et patrimoine","priorite":"3","statut":"Envoyé service","attribue_a":"Elodie P.","relecture_1":"Elise F.","relecture_2":"","date_envoi":"2026-08-12","date_butoire":"","dga":"DGA-ECAT","service":"Service arts et territoires","contact":"","commentaires":"NEW - proposition nouvelle fiche (aide déjà existante) /Elodie"},
+      {"id":55,"titre":"Conservation départementale d'objets mobiliers","thematique":"Culture et patrimoine","priorite":"3","statut":"Envoyé service","attribue_a":"Elise F.","relecture_1":"Elodie P.","relecture_2":"","date_envoi":"2026-08-12","date_butoire":"","dga":"DGA-ECAT","service":"","contact":"","commentaires":""},
+      {"id":56,"titre":"Contrat de développement culturel de territoire : crédits de développement","thematique":"Culture et patrimoine","priorite":"1","statut":"Envoyé service","attribue_a":"Elise F.","relecture_1":"Elodie P.","relecture_2":"","date_envoi":"2026-08-12","date_butoire":"2026-11-03","dga":"DGA-ECAT","service":"","contact":"","commentaires":""},
+      {"id":57,"titre":"Contrat de développement culturel de territoire : crédits de professionnalisation","thematique":"Culture et patrimoine","priorite":"1","statut":"Envoyé service","attribue_a":"Elise F.","relecture_1":"Elodie P.","relecture_2":"","date_envoi":"2026-08-12","date_butoire":"2026-10-28","dga":"DGA-ECAT","service":"","contact":"","commentaires":""},
+      {"id":58,"titre":"Contrats de territoire 2022-2027","thematique":"Aménagement et dévloppement du territoire","priorite":"1","statut":"En cours réécriture","attribue_a":"","relecture_1":"","relecture_2":"","date_envoi":"","date_butoire":"","dga":"","service":"","contact":"","commentaires":""},
+      {"id":59,"titre":"Coup de pouce sports de nature","thematique":"Sports et loisirs","priorite":"3","statut":"Terminé","attribue_a":"Elodie P.","relecture_1":"","relecture_2":"","date_envoi":"","date_butoire":"","dga":"","service":"","contact":"","commentaires":"N'existe plus / Dispositif non renouvellée"},
+      {"id":60,"titre":"Demande de carte de transport scolaire","thematique":"Education et collèges","priorite":"3","statut":"En cours réécriture","attribue_a":"Elise F.","relecture_1":"Elodie P.","relecture_2":"","date_envoi":"","date_butoire":"","dga":"","service":"","contact":"","commentaires":""},
+      {"id":61,"titre":"Demande d'objets promotionnels et de signalétique","thematique":"Sports et loisirs","priorite":"2","statut":"En cours réécriture","attribue_a":"Elodie P.","relecture_1":"","relecture_2":"","date_envoi":"","date_butoire":"2026-11-03","dga":"DGA-ECAT","service":"","contact":"","commentaires":""},
+      {"id":62,"titre":"Demande en ligne auprès de la MDPH","thematique":"Handicap","priorite":"1","statut":"En cours réécriture","attribue_a":"","relecture_1":"","relecture_2":"","date_envoi":"","date_butoire":"","dga":"","service":"","contact":"","commentaires":""},
+      {"id":63,"titre":"Demander la Prestation de compensation handicap (PCH)","thematique":"Handicap","priorite":"1","statut":"En cours réécriture","attribue_a":"","relecture_1":"","relecture_2":"","date_envoi":"","date_butoire":"","dga":"","service":"","contact":"","commentaires":""},
+      {"id":64,"titre":"Demander une aide-ménagère","thematique":"Seniors et aidants","priorite":"2","statut":"En cours réécriture","attribue_a":"","relecture_1":"","relecture_2":"","date_envoi":"","date_butoire":"","dga":"","service":"","contact":"","commentaires":""},
+      {"id":65,"titre":"Développement d'un réseau départemental de location solidaire de véhicule","thematique":"emploi et insertion professionnelle","priorite":"3","statut":"En cours réécriture","attribue_a":"","relecture_1":"","relecture_2":"","date_envoi":"","date_butoire":"2026-10-28","dga":"","service":"","contact":"","commentaires":""},
+      {"id":66,"titre":"Droit de préemption: un outil au service de la protection des espaces naturels sensibles","thematique":"Aménagement et dévloppement du territoire","priorite":"2","statut":"En cours réécriture","attribue_a":"Elise F.","relecture_1":"","relecture_2":"","date_envoi":"","date_butoire":"2026-11-03","dga":"","service":"","contact":"","commentaires":""},
+      {"id":67,"titre":"Educ de Normandie (ENT)","thematique":"Education et collèges","priorite":"3","statut":"En cours réécriture","attribue_a":"Elise F.","relecture_1":"Elodie P.","relecture_2":"","date_envoi":"","date_butoire":"","dga":"DGA-ECAT","service":"","contact":"","commentaires":""},
+      {"id":68,"titre":"Equipement chauffage bois : aide à la réalisation d'études de faisabilité - Collectivités","thematique":"Aménagement et dévloppement du territoire","priorite":"3","statut":"En cours réécriture","attribue_a":"","relecture_1":"","relecture_2":"","date_envoi":"","date_butoire":"","dga":"","service":"","contact":"","commentaires":""},
+      {"id":69,"titre":"Faire rayonner le Calvados : Cap sur les manifestations emblématiques touristiques","thematique":"Aménagement et dévloppement du territoire","priorite":"2","statut":"Terminé","attribue_a":"Elise F.","relecture_1":"","relecture_2":"","date_envoi":"","date_butoire":"2026-10-28","dga":"","service":"","contact":"","commentaires":""},
+      {"id":70,"titre":"Faire réaliser un diagnostic archéologique avant l'achat d'un terrain ou des travaux","thematique":"Culture et patrimoine","priorite":"3","statut":"Envoyé service","attribue_a":"Elise F.","relecture_1":"Elodie P.","relecture_2":"","date_envoi":"2026-08-12","date_butoire":"","dga":"DGA-ECAT","service":"","contact":"","commentaires":""},
+      {"id":71,"titre":"Faire réaliser une fouille préventive","thematique":"Culture et patrimoine","priorite":"3","statut":"Envoyé service","attribue_a":"Elise F.","relecture_1":"Elodie P.","relecture_2":"","date_envoi":"2026-08-12","date_butoire":"2026-11-03","dga":"DGA-ECAT","service":"","contact":"","commentaires":""},
+      {"id":72,"titre":"Fonds de solidarité pour l'énergie et l'eau","thematique":"logement","priorite":"1","statut":"Envoyé service","attribue_a":"Elise F.","relecture_1":"Anne L.","relecture_2":"","date_envoi":"2026-07-24","date_butoire":"","dga":"DGA-S","service":"Service insertion","contact":"","commentaires":""},
+      {"id":73,"titre":"Formation et accompagnement des professionnels du domaine artistique","thematique":"Culture et patrimoine","priorite":"2","statut":"Envoyé service","attribue_a":"Elise F.","relecture_1":"Elodie P.","relecture_2":"","date_envoi":"2026-08-12","date_butoire":"2026-10-28","dga":"DGA-ECAT","service":"","contact":"","commentaires":""},
+      {"id":74,"titre":"Garage social","thematique":"emploi et insertion professionnelle","priorite":"3","statut":"En cours réécriture","attribue_a":"","relecture_1":"","relecture_2":"","date_envoi":"","date_butoire":"","dga":"","service":"","contact":"","commentaires":""},
+      {"id":75,"titre":"GéoCollège Calvados - Trouver son collège de secteur","thematique":"Education et collèges","priorite":"1","statut":"En cours réécriture","attribue_a":"Elise F.","relecture_1":"Elodie P.","relecture_2":"","date_envoi":"","date_butoire":"","dga":"","service":"","contact":"","commentaires":""},
+      {"id":76,"titre":"Guide des actions éducatives","thematique":"Education et collèges","priorite":"3","statut":"En cours réécriture","attribue_a":"Elodie P.","relecture_1":"","relecture_2":"","date_envoi":"","date_butoire":"2026-11-03","dga":"DGA-ECAT","service":"","contact":"","commentaires":"est-ce bien une aide ? c'est plus un service"},
+      {"id":77,"titre":"Fonds de Solidarité pour l'Energie (FSE)","thematique":"logement","priorite":"1","statut":"Envoyé service","attribue_a":"Elise F.","relecture_1":"Anne L.","relecture_2":"","date_envoi":"2026-07-24","date_butoire":"2026-10-28","dga":"DGA-S","service":"Service insertion","contact":"","commentaires":""},
+      {"id":78,"titre":"Inforoute","thematique":"Aménagement et dévloppement du territoire","priorite":"1","statut":"En cours réécriture","attribue_a":"","relecture_1":"","relecture_2":"","date_envoi":"","date_butoire":"","dga":"","service":"","contact":"","commentaires":""},
+      {"id":79,"titre":"Initiatives jeunes","thematique":"Education et collèges","priorite":"3","statut":"En cours réécriture","attribue_a":"Elodie P.","relecture_1":"","relecture_2":"","date_envoi":"","date_butoire":"","dga":"","service":"","contact":"","commentaires":""},
+      {"id":80,"titre":"Itinér'Air","thematique":"Education et collèges","priorite":"3","statut":"En cours réécriture","attribue_a":"Elodie P.","relecture_1":"","relecture_2":"","date_envoi":"","date_butoire":"","dga":"","service":"","contact":"","commentaires":""},
+      {"id":81,"titre":"Location et/ou acquisition de véhicules 2 ou 4 roues","thematique":"emploi et insertion professionnelle","priorite":"3","statut":"En cours réécriture","attribue_a":"","relecture_1":"","relecture_2":"","date_envoi":"","date_butoire":"2026-11-03","dga":"","service":"","contact":"","commentaires":""},
+      {"id":82,"titre":"Maintien dans votre logement : l'aide du Fonds de solidarité logement (FSL)","thematique":"logement","priorite":"1","statut":"Envoyé service","attribue_a":"Elise F.","relecture_1":"Anne L.","relecture_2":"","date_envoi":"2026-07-24","date_butoire":"","dga":"DGA-S","service":"Service insertion","contact":"","commentaires":""},
+      {"id":83,"titre":"Mapéo Calvados","thematique":"Aménagement et dévloppement du territoire","priorite":"1","statut":"En cours réécriture","attribue_a":"","relecture_1":"","relecture_2":"","date_envoi":"","date_butoire":"","dga":"","service":"","contact":"","commentaires":""},
+      {"id":84,"titre":"Notaire : récupération sur une succession des aides sociales départementales","thematique":"Seniors et aidants","priorite":"1","statut":"En cours réécriture","attribue_a":"Elise F.","relecture_1":"","relecture_2":"","date_envoi":"","date_butoire":"","dga":"","service":"","contact":"","commentaires":""},
+      {"id":85,"titre":"Obtenir une attestion d'honorabilité","thematique":"Enfance et famille","priorite":"1","statut":"En cours réécriture","attribue_a":"Elise F.","relecture_1":"Elodie P.","relecture_2":"","date_envoi":"","date_butoire":"2026-10-28","dga":"DGA-S","service":"","contact":"","commentaires":""},
+      {"id":86,"titre":"Payer en ligne vos services publics avec PAYFIP","thematique":"Seniors et aidants","priorite":"1","statut":"En cours réécriture","attribue_a":"Elise F.","relecture_1":"","relecture_2":"","date_envoi":"","date_butoire":"2026-11-03","dga":"","service":"","contact":"","commentaires":""},
+      {"id":87,"titre":"Prestation diagnostic et accompagnement","thematique":"emploi et insertion professionnelle","priorite":"1","statut":"En cours réécriture","attribue_a":"","relecture_1":"","relecture_2":"","date_envoi":"","date_butoire":"","dga":"DGA-S","service":"","contact":"","commentaires":""},
+      {"id":88,"titre":"Restauration du patrimoine historique","thematique":"Culture et patrimoine","priorite":"2","statut":"Envoyé service","attribue_a":"Elodie P.","relecture_1":"Elise F.","relecture_2":"","date_envoi":"2026-08-12","date_butoire":"","dga":"DGA-ECAT","service":"Service patrimoine","contact":"","commentaires":""},
+      {"id":89,"titre":"Revenu de solidarité active (RSA)","thematique":"emploi et insertion professionnelle","priorite":"1","statut":"Envoyé service","attribue_a":"Elise F.","relecture_1":"Anne L.","relecture_2":"","date_envoi":"2026-07-24","date_butoire":"2026-10-28","dga":"DGA-S","service":"Service insertion","contact":"","commentaires":""},
+      {"id":90,"titre":"Secours exceptionnel enfance famille","thematique":"Enfance et famille","priorite":"1","statut":"En cours réécriture","attribue_a":"Elodie P.","relecture_1":"Elise F.","relecture_2":"","date_envoi":"","date_butoire":"","dga":"DGA-S","service":"","contact":"","commentaires":""},
+      {"id":91,"titre":"Séjours scolaires à l'étranger","thematique":"Education et collèges","priorite":"2","statut":"En cours réécriture","attribue_a":"Elise F.","relecture_1":"Elodie P.","relecture_2":"","date_envoi":"","date_butoire":"2026-11-03","dga":"","service":"","contact":"","commentaires":""},
+      {"id":92,"titre":"Signature de la charte de jumelage","thematique":"Education et collèges","priorite":"3","statut":"En cours réécriture","attribue_a":"Elise F.","relecture_1":"Elodie P.","relecture_2":"","date_envoi":"","date_butoire":"","dga":"","service":"","contact":"","commentaires":""},
+      {"id":93,"titre":"Sorties Scol'Air : citoyenneté et orientation","thematique":"Education et collèges","priorite":"2","statut":"En cours réécriture","attribue_a":"Elodie P.","relecture_1":"","relecture_2":"","date_envoi":"","date_butoire":"2026-10-28","dga":"DGA-ECAT","service":"","contact":"","commentaires":""},
+      {"id":94,"titre":"Sorties Scol'Air : culture","thematique":"Culture et patrimoine","priorite":"2","statut":"Envoyé service","attribue_a":"Elodie P.","relecture_1":"Elise F.","relecture_2":"","date_envoi":"2026-08-12","date_butoire":"","dga":"DGA-ECAT","service":"Service patrimoine","contact":"Scaba SCHOLLE","commentaires":""},
+      {"id":95,"titre":"Sorties Scol'Air : de la terre à la mer","thematique":"Aménagement et dévloppement du territoire","priorite":"2","statut":"En cours réécriture","attribue_a":"Elodie P.","relecture_1":"","relecture_2":"","date_envoi":"","date_butoire":"","dga":"DGA-AE","service":"","contact":"","commentaires":""},
+      {"id":96,"titre":"Sorties Scol'Air : espaces naturels sensibles (ENS)","thematique":"Aménagement et dévloppement du territoire","priorite":"2","statut":"En cours réécriture","attribue_a":"Elodie P.","relecture_1":"","relecture_2":"","date_envoi":"","date_butoire":"2026-11-03","dga":"","service":"","contact":"","commentaires":""},
+      {"id":97,"titre":"Speak 14 : accueillir un assistant dans mon collège","thematique":"Education et collèges","priorite":"2","statut":"En cours réécriture","attribue_a":"Elise F.","relecture_1":"Elodie P.","relecture_2":"","date_envoi":"","date_butoire":"2026-10-28","dga":"","service":"","contact":"","commentaires":""},
+      {"id":98,"titre":"Speak14 : devenir assitant de langue dans un collège","thematique":"Education et collèges","priorite":"2","statut":"En cours réécriture","attribue_a":"Elise F.","relecture_1":"Elodie P.","relecture_2":"","date_envoi":"","date_butoire":"","dga":"","service":"","contact":"","commentaires":""},
+      {"id":99,"titre":"Sport santé et publics cibles","thematique":"Sports et loisirs","priorite":"3","statut":"En cours réécriture","attribue_a":"Anne L.","relecture_1":"Elodie P.","relecture_2":"","date_envoi":"","date_butoire":"","dga":"","service":"","contact":"","commentaires":""},
+      {"id":100,"titre":"Subvention au titre des amendes de police pour des opérations en matière de circulation routière","thematique":"Aménagement et dévloppement du territoire","priorite":"1","statut":"En cours réécriture","attribue_a":"Anne L.","relecture_1":"","relecture_2":"","date_envoi":"","date_butoire":"","dga":"DGA-AE","service":"Service accompagnement des agences routières","contact":"D. Paressant","commentaires":""},
+      {"id":101,"titre":"Subvention de fonctionnement à la vie littéraire","thematique":"Culture et patrimoine","priorite":"2","statut":"Envoyé service","attribue_a":"AIDE Lucas D.","relecture_1":"Elise F.","relecture_2":"","date_envoi":"2026-08-12","date_butoire":"2026-11-03","dga":"DGA-ECAT","service":"","contact":"","commentaires":""},
+      {"id":102,"titre":"Subvention pour les associations de valorisation du patrimoine et du devoir de mémoire","thematique":"Culture et patrimoine","priorite":"2","statut":"Envoyé service","attribue_a":"AIDE Lucas D.","relecture_1":"Elise F.","relecture_2":"","date_envoi":"2026-08-12","date_butoire":"","dga":"DGA-ECAT","service":"","contact":"","commentaires":""},
+      {"id":103,"titre":"Subventions pour les associations venant en aide aux personnes en difficulté","thematique":"Seniors et aidants","priorite":"1","statut":"En cours réécriture","attribue_a":"","relecture_1":"","relecture_2":"","date_envoi":"","date_butoire":"","dga":"","service":"","contact":"","commentaires":""},
+      {"id":104,"titre":"Subvention pour les établissements d'enseignement artistique","thematique":"Culture et patrimoine","priorite":"2","statut":"Envoyé service","attribue_a":"Elise F.","relecture_1":"Elodie P.","relecture_2":"","date_envoi":"2026-08-12","date_butoire":"","dga":"DGA-ECAT","service":"","contact":"","commentaires":""},
+      {"id":105,"titre":"Subvention pour renforcer l'attractivité des collections des bibliothèques","thematique":"Culture et patrimoine","priorite":"2","statut":"Envoyé service","attribue_a":"Elise F.","relecture_1":"Elodie P.","relecture_2":"","date_envoi":"2026-08-12","date_butoire":"2026-10-28","dga":"DGA-ECAT","service":"","contact":"","commentaires":""},
+      {"id":106,"titre":"Téléassistance Calvados","thematique":"Seniors et aidants","priorite":"1","statut":"En cours réécriture","attribue_a":"Elise F.","relecture_1":"","relecture_2":"","date_envoi":"","date_butoire":"2026-11-03","dga":"","service":"","contact":"","commentaires":""},
+      {"id":107,"titre":"Transport scolaire des élèves et étudiants en situation de handicap","thematique":"Handicap","priorite":"1","statut":"En cours réécriture","attribue_a":"","relecture_1":"","relecture_2":"","date_envoi":"","date_butoire":"","dga":"","service":"","contact":"","commentaires":""},
+      {"id":108,"titre":"Trouver un mode de garde","thematique":"Enfance et famille","priorite":"1","statut":"En cours réécriture","attribue_a":"Elodie P.","relecture_1":"Elise F.","relecture_2":"","date_envoi":"","date_butoire":"","dga":"DGA-S","service":"","contact":"","commentaires":""},
+      {"id":109,"titre":"Twin 14 : rencontres européennes de jeunes","thematique":"Education et collèges","priorite":"3","statut":"En cours réécriture","attribue_a":"Elise F.","relecture_1":"Elodie P.","relecture_2":"","date_envoi":"","date_butoire":"2026-10-28","dga":"","service":"","contact":"","commentaires":""},
+      {"id":110,"titre":"Valoriser votre contribution aux fouilles préventives","thematique":"Culture et patrimoine","priorite":"3","statut":"Envoyé service","attribue_a":"Elise F.","relecture_1":"Elodie P.","relecture_2":"","date_envoi":"2026-08-12","date_butoire":"","dga":"DGA-ECAT","service":"","contact":"","commentaires":""},
+      {"id":111,"titre":"ViaTrajectoire","thematique":"Seniors et aidants","priorite":"1","statut":"En cours réécriture","attribue_a":"Elise F.","relecture_1":"","relecture_2":"","date_envoi":"","date_butoire":"2026-11-03","dga":"","service":"","contact":"","commentaires":""},
+      {"id":112,"titre":"Visite du musée de Vieux-la-Romaine et des sites archéologiques","thematique":"Culture et patrimoine","priorite":"3","statut":"Envoyé service","attribue_a":"Elodie P.","relecture_1":"Elise F.","relecture_2":"","date_envoi":"2026-08-12","date_butoire":"","dga":"DGA-ECAT","service":"Musée Vieux-la-Romaine","contact":"","commentaires":""},
+      {"id":113,"titre":"Volontariat au Bezirk de Basse-Franconie (Allemagne)","thematique":"Education et collèges","priorite":"3","statut":"En cours réécriture","attribue_a":"Elise F.","relecture_1":"Elodie P.","relecture_2":"","date_envoi":"","date_butoire":"2026-10-28","dga":"","service":"","contact":"","commentaires":""}
+    ];
+
+    let lists = {
+      statuts: ["En cours réécriture", "Envoyé service", "Terminé"],
+      typologies: ["Fiche", "Mission"],
+      dga: ["DGA-S", "DGA-ECAT", "DGA-AE"],
+      thematiques: ["logement", "Education et collèges", "Aménagement et dévloppement du territoire", "Sports et loisirs", "Culture et patrimoine", "Seniors et aidants", "Enfance et famille", "emploi et insertion professionnelle", "Handicap"],
+      redacteurs: ["Elise F.", "Elodie P.", "Anne L.", "AIDE Lucas D."],
+      relecteurs: ["Elise F.", "Elodie P.", "Anne L."]
+    };
+
     let fiches = [];
     let filteredFiches = [];
     let currentPage = 1;
@@ -431,34 +697,104 @@
     let chartStatut = null, chartRedacteur = null, chartThematique = null;
 
     // Load initial data
-    window.addEventListener('DOMContentLoaded', async () => {
+    window.addEventListener('DOMContentLoaded', () => {
       const savedData = localStorage.getItem('calvados_fiches_data');
       if (savedData) {
         try {
           fiches = JSON.parse(savedData);
         } catch(e) {
-          fiches = [];
+          fiches = defaultFiches;
         }
+      } else {
+        fiches = defaultFiches;
+        saveToLocalStorage();
       }
-      
-      if (!fiches || fiches.length === 0) {
+
+      // Ensure every item has a typologie default if missing
+      fiches.forEach(f => {
+        if (!f.typologie) f.typologie = "Fiche";
+      });
+
+      const savedLists = localStorage.getItem('calvados_backoffice_lists');
+      if (savedLists) {
         try {
-          const res = await fetch('fiches_data.json');
-          fiches = await res.json();
-          saveToLocalStorage();
-        } catch(e) {
-          console.error("Could not load fiches_data.json", e);
-        }
+          lists = JSON.parse(savedLists);
+        } catch(e) {}
+      } else {
+        extractInitialListsFromFiches();
+        saveListsToLocalStorage();
       }
 
       initDropdowns();
+      renderBackoffice();
       applyFilters();
       updateDashboard();
     });
 
+    function extractInitialListsFromFiches() {
+      const statuts = new Set(lists.statuts);
+      const typologies = new Set(lists.typologies);
+      const dgas = new Set(lists.dga);
+      const thematiques = new Set(lists.thematiques);
+      const redacteurs = new Set(lists.redacteurs);
+      const relecteurs = new Set(lists.relecteurs);
+
+      fiches.forEach(f => {
+        if (f.statut) statuts.add(f.statut);
+        if (f.typologie) typologies.add(f.typologie);
+        if (f.dga) dgas.add(f.dga);
+        if (f.thematique) thematiques.add(f.thematique);
+        if (f.attribue_a) redacteurs.add(f.attribue_a);
+        if (f.relecture_1) relecteurs.add(f.relecture_1);
+        if (f.relecture_2) relecteurs.add(f.relecture_2);
+      });
+
+      lists.statuts = Array.from(statuts);
+      lists.typologies = Array.from(typologies).sort();
+      lists.dga = Array.from(dgas).sort();
+      lists.thematiques = Array.from(thematiques).sort();
+      lists.redacteurs = Array.from(redacteurs).sort();
+      lists.relecteurs = Array.from(relecteurs).sort();
+    }
+
     function saveToLocalStorage() {
       localStorage.setItem('calvados_fiches_data', JSON.stringify(fiches));
       document.getElementById('last-update').innerText = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+    }
+
+    function saveListsToLocalStorage() {
+      localStorage.setItem('calvados_backoffice_lists', JSON.stringify(lists));
+    }
+
+    // Helper to update relance notification badge counts
+    function updateRelanceCounts() {
+      const relances = fiches.filter(f => {
+        const st = getRelanceStatus(f);
+        return st.status === 'overdue' || st.status === 'warning';
+      });
+
+      const badge = document.getElementById('badge-relances-count');
+      if (badge) badge.innerText = relances.length;
+
+      const alertCount = document.getElementById('alert-kpi-count');
+      if (alertCount) alertCount.innerText = relances.length;
+
+      const cardAlert = document.getElementById('card-alert-relance');
+      if (cardAlert) {
+        if (relances.length === 0) {
+          cardAlert.classList.add('hidden');
+        } else {
+          cardAlert.classList.remove('hidden');
+        }
+      }
+    }
+
+    // Filter list specifically for relances J-2 / Overdue
+    function filterRelances() {
+      switchTab('table');
+      const selRelance = document.getElementById('filter-relance');
+      if (selRelance) selRelance.value = 'relance';
+      applyFilters();
     }
 
     // Date / Relance helpers
@@ -477,53 +813,170 @@
       } else if (diffDays <= 2) {
         return { status: 'warning', label: `⚠️ Relance (J-${diffDays})`, class: 'bg-amber-100 text-amber-800 border-amber-300' };
       } else {
-        return { status: 'ok', label: `In (${diffDays}j)`, class: 'bg-slate-100 text-slate-600 border-slate-200' };
+        return { status: 'ok', label: `Dans ${diffDays}j`, class: 'bg-slate-100 text-slate-600 border-slate-200' };
       }
     }
 
     function initDropdowns() {
-      const thematiques = [...new Set(fiches.map(f => f.thematique).filter(Boolean))].sort();
-      const redacteurs = [...new Set(fiches.map(f => f.attribue_a).filter(Boolean))].sort();
+      // Filter options
+      const selStatut = document.getElementById('filter-statut');
+      selStatut.innerHTML = '<option value="">Tous les statuts</option>';
+      lists.statuts.forEach(s => selStatut.innerHTML += `<option value="${s}">${s}</option>`);
+
+      const selType = document.getElementById('filter-typologie');
+      selType.innerHTML = '<option value="">Toutes typologies</option>';
+      lists.typologies.forEach(t => selType.innerHTML += `<option value="${t}">${t}</option>`);
 
       const selTheme = document.getElementById('filter-thematique');
       selTheme.innerHTML = '<option value="">Toutes les thématiques</option>';
-      thematiques.forEach(t => selTheme.innerHTML += `<option value="${t}">${t}</option>`);
+      lists.thematiques.forEach(t => selTheme.innerHTML += `<option value="${t}">${t}</option>`);
 
       const selRedac = document.getElementById('filter-redacteur');
       selRedac.innerHTML = '<option value="">Tous les rédacteurs</option>';
-      redacteurs.forEach(r => selRedac.innerHTML += `<option value="${r}">${r}</option>`);
+      lists.redacteurs.forEach(r => selRedac.innerHTML += `<option value="${r}">${r}</option>`);
+
+      // Form options
+      populateSelect('field-statut', lists.statuts, 'Sélectionner un statut...');
+      populateSelect('field-typologie', lists.typologies, 'Sélectionner une typologie...');
+      populateSelect('field-thematique', lists.thematiques, 'Sélectionner...');
+      populateSelect('field-attribue', lists.redacteurs, 'Non attribué');
+      populateSelect('field-relecture1', lists.relecteurs, 'Aucun');
+      populateSelect('field-relecture2', lists.relecteurs, 'Aucun');
+      populateSelect('field-dga', lists.dga, 'Non spécifiée');
+    }
+
+    // BACKOFFICE MANAGEMENT
+    function renderBackoffice() {
+      ['statuts', 'typologies', 'dga', 'thematiques', 'redacteurs', 'relecteurs'].forEach(key => {
+        const container = document.getElementById(`list-bo-${key}`);
+        const countSpan = document.getElementById(`count-bo-${key}`);
+        if (!container) return;
+
+        countSpan.innerText = lists[key].length;
+        container.innerHTML = '';
+
+        lists[key].forEach((item, index) => {
+          const li = document.createElement('li');
+          li.className = 'flex items-center justify-between p-2 bg-slate-50 border border-slate-200 rounded-lg group hover:bg-slate-100 transition';
+          li.innerHTML = `
+            <span class="font-medium text-slate-800 truncate max-w-[180px]">${item}</span>
+            <div class="flex items-center space-x-1 opacity-80 group-hover:opacity-100">
+              <button onclick="editBoItem('${key}', ${index})" class="p-1 text-slate-400 hover:text-sky-600 transition" title="Modifier">
+                <i class="fa-solid fa-pen"></i>
+              </button>
+              <button onclick="deleteBoItem('${key}', ${index})" class="p-1 text-slate-400 hover:text-red-600 transition" title="Supprimer">
+                <i class="fa-solid fa-trash"></i>
+              </button>
+            </div>
+          `;
+          container.appendChild(li);
+        });
+      });
+    }
+
+    function addBoItem(key) {
+      const input = document.getElementById(`add-bo-${key}`);
+      const val = input.value.trim();
+      if (!val) return;
+
+      if (lists[key].includes(val)) {
+        alert('Cet élément existe déjà dans la liste.');
+        return;
+      }
+
+      lists[key].push(val);
+      lists[key].sort();
+      input.value = '';
+      
+      saveListsToLocalStorage();
+      renderBackoffice();
+      initDropdowns();
+    }
+
+    function editBoItem(key, index) {
+      const oldVal = lists[key][index];
+      const newVal = prompt('Modifier la valeur :', oldVal);
+      if (newVal === null) return;
+      const trimmed = newVal.trim();
+      if (!trimmed || trimmed === oldVal) return;
+
+      lists[key][index] = trimmed;
+      lists[key].sort();
+
+      saveListsToLocalStorage();
+      renderBackoffice();
+      initDropdowns();
+    }
+
+    function deleteBoItem(key, index) {
+      const val = lists[key][index];
+      if (confirm(`Voulez-vous supprimer "${val}" de la liste ?`)) {
+        lists[key].splice(index, 1);
+        saveListsToLocalStorage();
+        renderBackoffice();
+        initDropdowns();
+      }
+    }
+
+    function restoreDefaultLists() {
+      if (confirm('Voulez-vous réinitialiser toutes les listes du Back-Office à partir des données des fiches ?')) {
+        localStorage.removeItem('calvados_backoffice_lists');
+        extractInitialListsFromFiches();
+        saveListsToLocalStorage();
+        renderBackoffice();
+        initDropdowns();
+      }
+    }
+
+    function populateSelect(id, list, placeholder = '') {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.innerHTML = placeholder ? `<option value="">${placeholder}</option>` : '';
+      list.forEach(item => {
+        el.innerHTML += `<option value="${item}">${item}</option>`;
+      });
     }
 
     function switchTab(tab) {
-      document.getElementById('view-dashboard').classList.add('hidden');
-      document.getElementById('view-table').classList.add('hidden');
-      document.getElementById('view-kanban').classList.add('hidden');
+      const views = ['dashboard', 'table', 'kanban', 'backoffice'];
+      views.forEach(v => {
+        const viewEl = document.getElementById(`view-${v}`);
+        if (viewEl) viewEl.classList.add('hidden');
+      });
 
       document.querySelectorAll('.tab-btn').forEach(btn => {
-        btn.classList.remove('text-indigo-600', 'bg-indigo-50', 'font-semibold');
+        btn.classList.remove('text-sky-600', 'bg-sky-50', 'font-semibold');
         btn.classList.add('text-slate-600', 'hover:bg-slate-100');
       });
 
       const activeBtn = document.getElementById(`tab-${tab}`);
-      activeBtn.classList.add('text-indigo-600', 'bg-indigo-50', 'font-semibold');
-      activeBtn.classList.remove('text-slate-600', 'hover:bg-slate-100');
+      if (activeBtn) {
+        activeBtn.classList.add('text-sky-600', 'bg-sky-50', 'font-semibold');
+        activeBtn.classList.remove('text-slate-600', 'hover:bg-slate-100');
+      }
 
-      document.getElementById(`view-${tab}`).classList.remove('hidden');
+      const activeView = document.getElementById(`view-${tab}`);
+      if (activeView) {
+        activeView.classList.remove('hidden');
+      }
 
       if (tab === 'dashboard') updateDashboard();
       if (tab === 'kanban') renderKanban();
+      if (tab === 'backoffice') renderBackoffice();
     }
 
     function applyFilters() {
       const search = document.getElementById('filter-search').value.toLowerCase();
       const statut = document.getElementById('filter-statut').value;
+      const typologie = document.getElementById('filter-typologie').value;
       const thematique = document.getElementById('filter-thematique').value;
       const redacteur = document.getElementById('filter-redacteur').value;
       const relanceFilter = document.getElementById('filter-relance').value;
 
       filteredFiches = fiches.filter(f => {
-        const matchesSearch = !search || f.titre.toLowerCase().includes(search) || f.service.toLowerCase().includes(search) || f.contact.toLowerCase().includes(search);
+        const matchesSearch = !search || f.titre.toLowerCase().includes(search) || (f.service && f.service.toLowerCase().includes(search)) || (f.contact && f.contact.toLowerCase().includes(search));
         const matchesStatut = !statut || f.statut === statut;
+        const matchesType = !typologie || (f.typologie || "Fiche") === typologie;
         const matchesTheme = !thematique || f.thematique === thematique;
         const matchesRedac = !redacteur || f.attribue_a === redacteur;
         
@@ -532,7 +985,7 @@
         if (relanceFilter === 'relance') matchesRelance = (relState.status === 'overdue' || relState.status === 'warning');
         if (relanceFilter === 'urgent') matchesRelance = (relState.status === 'overdue');
 
-        return matchesSearch && matchesStatut && matchesTheme && matchesRedac && matchesRelance;
+        return matchesSearch && matchesStatut && matchesType && matchesTheme && matchesRedac && matchesRelance;
       });
 
       currentPage = 1;
@@ -540,32 +993,10 @@
       updateRelanceCounts();
     }
 
-    function updateRelanceCounts() {
-      const relanceList = fiches.filter(f => {
-        const st = getRelanceStatus(f);
-        return st.status === 'overdue' || st.status === 'warning';
-      });
-      
-      document.getElementById('badge-relances-count').innerText = relanceList.length;
-      document.getElementById('alert-kpi-count').innerText = relanceList.length;
-
-      const alertCard = document.getElementById('card-alert-relance');
-      if (relanceList.length === 0) {
-        alertCard.classList.add('hidden');
-      } else {
-        alertCard.classList.remove('hidden');
-      }
-    }
-
-    function filterRelances() {
-      switchTab('table');
-      document.getElementById('filter-relance').value = 'relance';
-      applyFilters();
-    }
-
     function resetFilters() {
       document.getElementById('filter-search').value = '';
       document.getElementById('filter-statut').value = '';
+      document.getElementById('filter-typologie').value = '';
       document.getElementById('filter-thematique').value = '';
       document.getElementById('filter-redacteur').value = '';
       document.getElementById('filter-relance').value = '';
@@ -589,17 +1020,22 @@
         if (item.statut === 'En cours réécriture') statusBadge = '<span class="bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full font-semibold">En cours</span>';
         else if (item.statut === 'Envoyé service') statusBadge = '<span class="bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full font-semibold">Envoyé service</span>';
         else if (item.statut === 'Terminé') statusBadge = '<span class="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full font-semibold">Terminé</span>';
-        else statusBadge = `<span class="bg-slate-100 text-slate-700 px-2 py-0.5 rounded-full">${item.statut}</span>`;
+        else statusBadge = `<span class="bg-slate-100 text-slate-700 px-2 py-0.5 rounded-full font-semibold">${item.statut}</span>`;
 
         let prioBadge = '';
         if (item.priorite == 1) prioBadge = '<span class="text-red-600 font-bold">P1</span>';
         else if (item.priorite == 2) prioBadge = '<span class="text-amber-600 font-semibold">P2</span>';
         else prioBadge = '<span class="text-slate-400">P3</span>';
 
+        const typeBadge = item.typologie === 'Mission' 
+          ? '<span class="bg-purple-100 text-purple-700 px-2 py-0.5 rounded font-bold text-[10px]">Mission</span>'
+          : '<span class="bg-slate-100 text-slate-600 px-2 py-0.5 rounded font-medium text-[10px]">Fiche</span>';
+
         const tr = document.createElement('tr');
         tr.className = 'hover:bg-slate-50 transition border-b border-slate-100';
         tr.innerHTML = `
           <td class="p-3 text-center">${prioBadge}</td>
+          <td class="p-3">${typeBadge}</td>
           <td class="p-3 font-semibold text-slate-900 max-w-xs truncate" title="${item.titre}">${item.titre}</td>
           <td class="p-3 text-slate-600 max-w-[140px] truncate" title="${item.thematique}">${item.thematique}</td>
           <td class="p-3">${statusBadge}</td>
@@ -619,7 +1055,7 @@
                 <i class="fa-solid fa-paper-plane"></i>
               </button>
             ` : ''}
-            <button onclick="editFiche(${item.id})" class="p-1.5 bg-slate-100 text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 rounded-lg transition" title="Éditer">
+            <button onclick="editFiche(${item.id})" class="p-1.5 bg-slate-100 text-slate-700 hover:bg-sky-50 hover:text-sky-600 rounded-lg transition" title="Éditer">
               <i class="fa-solid fa-pen-to-square"></i>
             </button>
           </td>
@@ -637,7 +1073,7 @@
 
       for (let i = 1; i <= totalPages; i++) {
         const btn = document.createElement('button');
-        btn.className = `px-2.5 py-1 rounded-md text-xs font-semibold ${i === currentPage ? 'bg-indigo-600 text-white' : 'bg-white border text-slate-600 hover:bg-slate-100'}`;
+        btn.className = `px-2.5 py-1 rounded-md text-xs font-semibold ${i === currentPage ? 'bg-sky-600 text-white' : 'bg-white border text-slate-600 hover:bg-slate-100'}`;
         btn.innerText = i;
         btn.onclick = () => { currentPage = i; renderTable(); };
         paginationContainer.appendChild(btn);
@@ -658,10 +1094,10 @@
         return `
           <div class="bg-white p-3.5 rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition space-y-2">
             <div class="flex items-start justify-between gap-2">
-              <span class="text-[10px] font-bold uppercase tracking-wider text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-md">${f.thematique}</span>
+              <span class="text-[10px] font-bold uppercase tracking-wider text-sky-700 bg-sky-50 px-2 py-0.5 rounded-md">${f.thematique}</span>
               <span class="text-[10px] font-bold text-slate-400">P${f.priorite}</span>
             </div>
-            <h4 class="font-bold text-xs text-slate-800 leading-snug cursor-pointer hover:text-indigo-600" onclick="editFiche(${f.id})">${f.titre}</h4>
+            <h4 class="font-bold text-xs text-slate-800 leading-snug cursor-pointer hover:text-sky-600" onclick="editFiche(${f.id})">${f.titre}</h4>
             <div class="text-[11px] text-slate-500 flex items-center justify-between pt-1 border-t border-slate-100">
               <div class="flex items-center space-x-1">
                 <i class="fa-solid fa-user text-[10px] text-slate-400"></i>
@@ -699,17 +1135,20 @@
 
       // Chart 1: Statuts
       if (chartStatut) chartStatut.destroy();
-      chartStatut = new Chart(document.getElementById('chartStatut'), {
-        type: 'doughnut',
-        data: {
-          labels: ['En cours réécriture', 'Envoyé service', 'Terminé'],
-          datasets: [{
-            data: [encours, envoye, termine],
-            backgroundColor: ['#f59e0b', '#3b82f6', '#10b981']
-          }]
-        },
-        options: { responsive: true, maintainAspectRatio: false }
-      });
+      const ctxStatut = document.getElementById('chartStatut');
+      if (ctxStatut) {
+        chartStatut = new Chart(ctxStatut, {
+          type: 'doughnut',
+          data: {
+            labels: ['En cours réécriture', 'Envoyé service', 'Terminé'],
+            datasets: [{
+              data: [encours, envoye, termine],
+              backgroundColor: ['#f59e0b', '#3b82f6', '#10b981']
+            }]
+          },
+          options: { responsive: true, maintainAspectRatio: false }
+        });
+      }
 
       // Chart 2: Rédacteurs
       const redacCounts = {};
@@ -719,18 +1158,21 @@
       });
 
       if (chartRedacteur) chartRedacteur.destroy();
-      chartRedacteur = new Chart(document.getElementById('chartRedacteur'), {
-        type: 'bar',
-        data: {
-          labels: Object.keys(redacCounts),
-          datasets: [{
-            label: 'Nombre de fiches',
-            data: Object.values(redacCounts),
-            backgroundColor: '#6366f1'
-          }]
-        },
-        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
-      });
+      const ctxRedac = document.getElementById('chartRedacteur');
+      if (ctxRedac) {
+        chartRedacteur = new Chart(ctxRedac, {
+          type: 'bar',
+          data: {
+            labels: Object.keys(redacCounts),
+            datasets: [{
+              label: 'Nombre de fiches',
+              data: Object.values(redacCounts),
+              backgroundColor: '#0284c7'
+            }]
+          },
+          options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+        });
+      }
 
       // Chart 3: Thématiques
       const themeCounts = {};
@@ -740,18 +1182,21 @@
       });
 
       if (chartThematique) chartThematique.destroy();
-      chartThematique = new Chart(document.getElementById('chartThematique'), {
-        type: 'bar',
-        data: {
-          labels: Object.keys(themeCounts),
-          datasets: [{
-            label: 'Fiches par Thématique',
-            data: Object.values(themeCounts),
-            backgroundColor: '#0d9488'
-          }]
-        },
-        options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
-      });
+      const ctxTheme = document.getElementById('chartThematique');
+      if (ctxTheme) {
+        chartThematique = new Chart(ctxTheme, {
+          type: 'bar',
+          data: {
+            labels: Object.keys(themeCounts),
+            datasets: [{
+              label: 'Fiches par Thématique',
+              data: Object.values(themeCounts),
+              backgroundColor: '#0d9488'
+            }]
+          },
+          options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+        });
+      }
     }
 
     // Modal Actions
@@ -763,12 +1208,18 @@
       document.getElementById('modal-fiche').classList.remove('hidden');
     }
 
+    function closeModal() {
+      const modal = document.getElementById('modal-fiche');
+      if (modal) modal.classList.add('hidden');
+    }
+
     function editFiche(id) {
       const item = fiches.find(f => f.id === id);
       if (!item) return;
 
       document.getElementById('field-id').value = item.id;
       document.getElementById('field-titre').value = item.titre;
+      document.getElementById('field-typologie').value = item.typologie || 'Fiche';
       document.getElementById('field-thematique').value = item.thematique;
       document.getElementById('field-priorite').value = item.priorite || 2;
       document.getElementById('field-statut').value = item.statut;
@@ -787,10 +1238,6 @@
       document.getElementById('modal-fiche').classList.remove('hidden');
     }
 
-    function closeModal() {
-      document.getElementById('modal-fiche').classList.add('hidden');
-    }
-
     function saveFiche(e) {
       e.preventDefault();
       const id = document.getElementById('field-id').value;
@@ -798,6 +1245,7 @@
       const payload = {
         id: id ? parseInt(id) : Date.now(),
         titre: document.getElementById('field-titre').value,
+        typologie: document.getElementById('field-typologie').value,
         thematique: document.getElementById('field-thematique').value,
         priorite: document.getElementById('field-priorite').value,
         statut: document.getElementById('field-statut').value,
@@ -894,5 +1342,3 @@
       fileReader.readAsText(event.target.files[0]);
     }
   </script>
-</body>
-</html>
